@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Design tokens — Psalm Creations Business Suite
+ *
+ * Semantic, role-based tokens per the UI/UX Design System spec.
+ * Components must reference these tokens only — never literal colors —
+ * so light and dark themes are defined here and nowhere else.
+ *
+ * Status colors are fg/bg pairs: `*-fg` values meet WCAG AA (4.5:1) as
+ * text on `background`/`surface`; `*-soft` values are fills for badges.
+ */
+
+:root {
+  /* Surfaces */
+  --background: #f8fafc; /* app canvas — neutral white */
+  --surface: #ffffff; /* cards — pure white */
+  --surface-raised: #ffffff; /* popovers, dialogs */
+  --surface-sunken: #f1f5f9; /* wells, table headers */
+
+  /* Text */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-inverted: #f8fafc;
+
+  /* Borders */
+  --border-subtle: #e2e8f0;
+  --border-strong: #cbd5e1;
+
+  /* Brand — deep indigo primary, royal blue accent */
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-fg: #ffffff;
+  --primary-soft: #eef2ff;
+  --accent: #2563eb;
+  --accent-fg: #ffffff;
+  --accent-soft: #eff6ff;
+
+  /* Status — fg passes AA on light surfaces; soft is the badge fill */
+  --success-fg: #047857;
+  --success-soft: #ecfdf5;
+  --success-border: #a7f3d0;
+  --warning-fg: #92400e;
+  --warning-soft: #fffbeb;
+  --warning-border: #fde68a;
+  --danger-fg: #be123c;
+  --danger-soft: #fff1f2;
+  --danger-border: #fecdd3;
+
+  /* Focus */
+  --ring: #4f46e5;
+}
+
+.dark {
+  /* Surfaces — slate based */
+  --background: #020617;
+  --surface: #0f172a;
+  --surface-raised: #1e293b;
+  --surface-sunken: #0b1120;
+
+  /* Text */
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-inverted: #0f172a;
+
+  /* Borders */
+  --border-subtle: #1e293b;
+  --border-strong: #334155;
+
+  /* Brand */
+  --primary: #6366f1;
+  --primary-hover: #818cf8;
+  --primary-fg: #ffffff;
+  --primary-soft: #1e1b4b;
+  --accent: #3b82f6;
+  --accent-fg: #ffffff;
+  --accent-soft: #172554;
+
+  /* Status */
+  --success-fg: #34d399;
+  --success-soft: #022c22;
+  --success-border: #065f46;
+  --warning-fg: #fbbf24;
+  --warning-soft: #451a03;
+  --warning-border: #92400e;
+  --danger-fg: #fb7185;
+  --danger-soft: #4c0519;
+  --danger-border: #9f1239;
+
+  /* Focus */
+  --ring: #818cf8;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-inverted: var(--text-inverted);
+
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-fg: var(--primary-fg);
+  --color-primary-soft: var(--primary-soft);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+
+  --color-success-fg: var(--success-fg);
+  --color-success-soft: var(--success-soft);
+  --color-success-border: var(--success-border);
+  --color-warning-fg: var(--warning-fg);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-border: var(--warning-border);
+  --color-danger-fg: var(--danger-fg);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-border: var(--danger-border);
+
+  --color-ring: var(--ring);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--text-primary);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
