@@ -1,0 +1,16 @@
+{
+  "name": "GURU — WAEC, JAMB & NECO past questions",
+  "short_name": "GURU",
+  "description": "Past questions with worked answers, study groups and progress tracking for Nigerian students.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#050d0a",
+  "theme_color": "#050d0a",
+  "categories": ["education"],
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

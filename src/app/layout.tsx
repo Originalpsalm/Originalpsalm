@@ -1,0 +1,36 @@
+import type { Metadata, Viewport } from "next";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: {
+    default: "GURU — Pass WAEC, JAMB & NECO",
+    template: "%s · GURU",
+  },
+  description:
+    "Past questions for WAEC, JAMB and NECO with worked answers, study groups with your classmates, and progress tracking. Built for Nigerian students.",
+  applicationName: "GURU",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, title: "GURU", statusBarStyle: "black-translucent" },
+  openGraph: {
+    title: "GURU — Pass WAEC, JAMB & NECO",
+    description:
+      "Past questions with worked answers, study groups, and progress tracking for Nigerian students.",
+    siteName: "GURU",
+    type: "website",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#050d0a",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}

@@ -1,0 +1,43 @@
+"use server";
+
+import { redirect } from "next/navigation";
+import { requireUser } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { initializePayment, paymentByReference } from "@/lib/billing";
+
+export type CheckoutState = { error?: string };
+
+export async function startCheckoutAction(
+  _prev: CheckoutState,
+  formData: FormData,
+): Promise<CheckoutState> {
+  const user = await requireUser();
+  const planId = String(formData.get("planId") ?? "1");
+
+  const result = await initializePayment({
+    userId: user.id,
+    email: user.email,
+    planId,
+  });
+
+  if (!result.ok) return { error: result.error };
+  redirect(result.authorizationUrl);
+}
+
+/**
+ * Stands in for the Paystack checkout page while no live keys are configured.
+ * It only ever marks the *local* record as paid — the real flow still verifies
+ * against Paystack before anything is unlocked.
+ */
+export async function completeMockPaymentAction(formData: FormData) {
+  const user = await requireUser();
+  const reference = String(formData.get("reference") ?? "");
+  const payment = paymentByReference(reference);
+
+  if (!payment || payment.user_id !== user.id || payment.provider !== "mock") {
+    redirect("/premium");
+  }
+
+  db.prepare(`UPDATE payments SET status = 'pending' WHERE id = ?`).run(payment.id);
+  redirect(`/premium/verify?reference=${encodeURIComponent(reference)}`);
+}
