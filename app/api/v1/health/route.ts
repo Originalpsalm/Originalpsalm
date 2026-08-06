@@ -2,8 +2,11 @@ import { NextResponse } from "next/server";
 
 import { ok } from "@/lib/api/response";
 import { logger } from "@/lib/logger";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import type { ApiFailure } from "@/types/api";
+
+// A health check must run per request — never be prerendered at build time.
+export const dynamic = "force-dynamic";
 
 /**
  * GET /api/v1/health — liveness and database reachability for monitoring
@@ -11,7 +14,7 @@ import type { ApiFailure } from "@/types/api";
  */
 export async function GET(): Promise<NextResponse> {
   try {
-    await prisma.$queryRaw`SELECT 1`;
+    await getPrisma().$queryRaw`SELECT 1`;
   } catch (error) {
     logger.error("Health check: database unreachable", {
       error: error instanceof Error ? error.message : String(error),
