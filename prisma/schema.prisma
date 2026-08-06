@@ -1,0 +1,187 @@
+// Psalm Creations Business Suite — database schema.
+//
+// Conventions (see docs/adr/0001, docs/adr/0003, docs/decision-register.md):
+// - UUID v4 primary keys, generated application-side.
+// - Every business table: organizationId + createdAt/updatedAt/deletedAt
+//   + createdById/updatedById/deletedById actor fields.
+// - Uniqueness on business fields via per-tenant partial indexes
+//   (raw SQL in migrations), never plain @unique.
+// - Money: Decimal(19,4) unit prices · Decimal(19,2) totals · currencyCode.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// A tenant. Every business record belongs to exactly one organization
+/// (ADR-0001). Phase 1 operates as a single organization inside this model.
+model Organization {
+  id           String    @id @default(uuid()) @db.Uuid
+  name         String
+  baseCurrency String    @default("NGN") @db.Char(3)
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  users       User[]
+  roles       Role[]
+  auditEvents AuditEvent[]
+
+  @@map("organization")
+}
+
+/// A person who signs in. Scoped to one organization; email is unique per
+/// organization among non-deleted rows (ADR-0003 partial index).
+model User {
+  id             String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+
+  firstName String
+  lastName  String
+  /// PII — cleared on GDPR erasure (ADR-0006).
+  email     String
+  /// argon2id hash. Never selected into a mapper or logged (ADR-0002).
+  password  String
+
+  roleId String @db.Uuid
+
+  isActive    Boolean   @default(true)
+  lastLoginAt DateTime?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  createdById String?   @db.Uuid
+  updatedById String?   @db.Uuid
+  deletedById String?   @db.Uuid
+
+  organization Organization  @relation(fields: [organizationId], references: [id])
+  role         Role          @relation(fields: [roleId], references: [id])
+  sessions     UserSession[]
+  auditEvents  AuditEvent[]
+
+  @@index([organizationId])
+  @@index([organizationId, roleId])
+  @@map("user")
+}
+
+/// The authoritative revocation point for authentication (ADR-0002).
+/// A JWT is only honoured while its session row is live.
+model UserSession {
+  id             String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  userId         String @db.Uuid
+
+  /// SHA-256 of the issued token — the raw token is never stored.
+  tokenHash String @unique
+
+  ipAddress String?
+  userAgent String?
+
+  expiresAt  DateTime
+  lastSeenAt DateTime  @default(now())
+  revokedAt  DateTime?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([expiresAt])
+  @@map("user_session")
+}
+
+/// A named set of permissions, per organization. The seven default roles are
+/// seeded templates a tenant may copy or modify — never fixed enum values.
+model Role {
+  id             String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+
+  name        String
+  description String?
+  /// System roles are seeded and cannot be deleted.
+  isSystem    Boolean @default(false)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  createdById String?   @db.Uuid
+  updatedById String?   @db.Uuid
+  deletedById String?   @db.Uuid
+
+  organization Organization     @relation(fields: [organizationId], references: [id])
+  users        User[]
+  permissions  RolePermission[]
+
+  @@index([organizationId])
+  @@map("role")
+}
+
+/// The permission registry: one row per module × action, seeded from code.
+/// Global (not tenant-scoped) — roles bind tenants to these definitions.
+model Permission {
+  id String @id @default(uuid()) @db.Uuid
+
+  /// Stable machine key, e.g. "customer.create".
+  key         String  @unique
+  module      String
+  action      String
+  description String?
+
+  createdAt DateTime @default(now())
+
+  roles RolePermission[]
+
+  @@index([module])
+  @@map("permission")
+}
+
+model RolePermission {
+  id           String @id @default(uuid()) @db.Uuid
+  roleId       String @db.Uuid
+  permissionId String @db.Uuid
+
+  createdAt DateTime @default(now())
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@map("role_permission")
+}
+
+/// Append-only audit trail (ADR-0006). Rows are never edited, except for the
+/// documented GDPR redaction of PII snapshots.
+model AuditEvent {
+  id             String  @id @default(uuid()) @db.Uuid
+  organizationId String  @db.Uuid
+  /// Null for pre-authentication events such as a failed login.
+  userId         String? @db.Uuid
+
+  action   String
+  module   String
+  recordId String? @db.Uuid
+
+  oldValue Json?
+  newValue Json?
+
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  user         User?        @relation(fields: [userId], references: [id])
+
+  @@index([organizationId, createdAt])
+  @@index([organizationId, module, recordId])
+  @@index([userId])
+  @@map("audit_event")
+}

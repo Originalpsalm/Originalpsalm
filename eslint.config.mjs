@@ -14,8 +14,9 @@ const eslintConfig = defineConfig([
     },
   },
   {
-    // The structured logger is the only sanctioned console consumer.
-    files: ["lib/logger.ts"],
+    // The structured logger is the only sanctioned console consumer in app
+    // code; CLI scripts legitimately report progress to the terminal.
+    files: ["lib/logger.ts", "prisma/seed.ts"],
     rules: {
       "no-console": "off",
     },
@@ -27,6 +28,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated Prisma client:
+    "lib/generated/**",
   ]),
 ]);
 

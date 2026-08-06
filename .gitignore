@@ -40,3 +40,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# generated prisma client (rebuilt by `prisma generate` on install)
+/lib/generated/
+
+/app/generated/prisma
+
+# tool-generated skill scaffolding
+/.claude/skills/
+skills-lock.json
