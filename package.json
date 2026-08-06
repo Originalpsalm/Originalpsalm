@@ -4,11 +4,11 @@
   "private": true,
   "description": "GURU — past questions, study groups and exam prep for Nigerian secondary students (WAEC, JAMB, NECO).",
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/setup-env.mjs && next dev",
     "build": "next build",
-    "start": "next start",
-    "seed": "node scripts/seed.mjs",
-    "reset-db": "rm -f data/guru.db && node scripts/seed.mjs",
+    "start": "node scripts/setup-env.mjs && next start",
+    "seed": "node scripts/setup-env.mjs && node scripts/seed.mjs",
+    "reset-db": "node -e \"require('fs').rmSync('data',{recursive:true,force:true})\" && npm run seed",
     "typecheck": "tsc --noEmit"
   },
   "repository": {
