@@ -21,7 +21,35 @@ function open(): Database.Database {
   // The schema uses IF NOT EXISTS throughout, so running it on every boot is
   // safe and means a fresh clone works without a separate migration step.
   database.exec(SCHEMA);
+  addMissingColumns(database);
   return database;
+}
+
+/**
+ * CREATE TABLE IF NOT EXISTS does nothing to a table that already exists, so
+ * columns added after a database was first created need applying separately.
+ * Each entry is safe to run repeatedly.
+ */
+function addMissingColumns(database: Database.Database) {
+  const additions: { table: string; column: string; definition: string }[] = [
+    { table: "users", column: "role", definition: "TEXT NOT NULL DEFAULT 'student'" },
+  ];
+
+  for (const { table, column, definition } of additions) {
+    const columns = database.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[];
+    if (columns.some((entry) => entry.name === column)) continue;
+
+    try {
+      database.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+    } catch (error) {
+      // Next.js builds and serves from several worker processes at once, so
+      // two of them can pass the check above before either one commits. The
+      // column existing is the outcome we wanted either way.
+      if (!(error instanceof Error) || !/duplicate column name/i.test(error.message)) {
+        throw error;
+      }
+    }
+  }
 }
 
 export const db: Database.Database = globalForDb.guruDb ?? open();

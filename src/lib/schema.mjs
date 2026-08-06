@@ -19,8 +19,24 @@ export const SCHEMA = `
       plan_expires_at TEXT,                      -- ISO timestamp, null on free
       locked_until   TEXT,                       -- set when sharing is detected
       lock_reason    TEXT,
+      role           TEXT    NOT NULL DEFAULT 'student', -- 'student'|'admin'|'owner'
       created_at     TEXT    NOT NULL DEFAULT (datetime('now'))
     );
+
+    -- Every action an admin takes on somebody else's account is recorded.
+    -- Staff answering support tickets need to be accountable, and when a
+    -- student says "I never asked for that", this is the answer.
+    CREATE TABLE IF NOT EXISTS admin_actions (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      actor_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      action      TEXT    NOT NULL,
+      target_type TEXT    NOT NULL,          -- 'user' | 'group' | 'message' | 'payment'
+      target_id   TEXT,
+      target_label TEXT,                     -- kept readable after the target is deleted
+      detail      TEXT,
+      created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_admin_actions ON admin_actions(created_at DESC);
 
     -- Every sign-in creates a row. Enforcing "one account = one person" is
     -- done by counting rows here, so we keep revoked ones for the audit trail.

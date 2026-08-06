@@ -2,7 +2,7 @@ import "server-only";
 import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies, headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import crypto from "node:crypto";
 import { db } from "./db";
 import type { User } from "./types";
@@ -262,6 +262,30 @@ export async function requireUser(): Promise<CurrentUser> {
 }
 
 // ------------------------------------------------------------ subscriptions
+
+// ------------------------------------------------------------------- roles
+
+export function isAdmin(user: Pick<User, "role">): boolean {
+  return user.role === "admin" || user.role === "owner";
+}
+
+export function isOwner(user: Pick<User, "role">): boolean {
+  return user.role === "owner";
+}
+
+/** Guards every page under /admin. Students get a 404, not a locked door. */
+export async function requireAdmin(): Promise<CurrentUser> {
+  const user = await requireUser();
+  if (!isAdmin(user)) notFound();
+  return user;
+}
+
+/** Guards the few actions only the founder may take. */
+export async function requireOwner(): Promise<CurrentUser> {
+  const user = await requireUser();
+  if (!isOwner(user)) notFound();
+  return user;
+}
 
 export function isPremium(user: Pick<User, "plan" | "plan_expires_at">): boolean {
   if (user.plan !== "premium") return false;

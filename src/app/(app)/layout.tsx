@@ -2,7 +2,7 @@ import { ShieldAlert } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui";
-import { isPremium, requireUser } from "@/lib/auth";
+import { isAdmin, isPremium, requireUser } from "@/lib/auth";
 import { logoutAction } from "@/actions/auth";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -49,6 +49,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         username: user.username,
         avatar_hue: user.avatar_hue,
         premium: isPremium(user),
+        admin: isAdmin(user),
       }}
     >
       {children}

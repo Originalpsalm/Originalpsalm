@@ -6,6 +6,7 @@ import {
   BookOpenCheck,
   Crown,
   Home,
+  ShieldCheck,
   UserRound,
   Users,
 } from "lucide-react";
@@ -25,6 +26,7 @@ export type ShellUser = {
   username: string;
   avatar_hue: number;
   premium: boolean;
+  admin: boolean;
 };
 
 export function AppShell({
@@ -65,6 +67,21 @@ export function AppShell({
               )}
             </Link>
           ))}
+          {user.admin && (
+            <Link
+              href="/admin"
+              aria-current={isActive("/admin") ? "page" : undefined}
+              className={cn(
+                "focus-ring mt-2 flex items-center gap-3 rounded-xl border border-gold-500/20 px-3.5 py-2.5 text-sm font-medium transition",
+                isActive("/admin")
+                  ? "bg-gold-500/12 text-gold-400"
+                  : "text-gold-400/80 hover:bg-gold-500/10 hover:text-gold-400",
+              )}
+            >
+              <ShieldCheck size={19} strokeWidth={2.1} />
+              Admin
+            </Link>
+          )}
         </nav>
 
         <Link
@@ -94,6 +111,13 @@ export function AppShell({
             ) : (
               <Link href="/premium" className="focus-ring rounded-full">
                 <Badge tone="gold">Go Premium</Badge>
+              </Link>
+            )}
+            {user.admin && (
+              <Link href="/admin" className="focus-ring rounded-full" aria-label="Admin">
+                <Badge tone="gold">
+                  <ShieldCheck size={12} /> Admin
+                </Badge>
               </Link>
             )}
             <Link href="/account" className="focus-ring rounded-full">

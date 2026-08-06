@@ -1,5 +1,13 @@
 export type ExamBody = "WAEC" | "JAMB" | "NECO";
 
+/**
+ * 'owner' is you — the founder. There is meant to be exactly one, and only an
+ * owner can hand out or take back admin rights. 'admin' covers everyone
+ * helping run the platform: they can act on students, but cannot touch the
+ * owner or change anybody's role.
+ */
+export type Role = "student" | "admin" | "owner";
+
 export type User = {
   id: number;
   name: string;
@@ -15,6 +23,7 @@ export type User = {
   plan_expires_at: string | null;
   locked_until: string | null;
   lock_reason: string | null;
+  role: Role;
   created_at: string;
 };
 
