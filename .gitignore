@@ -2,7 +2,10 @@ node_modules/
 .next/
 out/
 build/
-data/
+# Leading slash matters: this must only ignore the database folder at the
+# project root. Without it the pattern also swallows src/data/ — the question
+# bank — at any depth.
+/data/
 *.db
 *.db-journal
 *.db-wal
