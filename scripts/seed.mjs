@@ -1,9 +1,16 @@
 /**
- * Seeds the GURU database with the past-question bank plus a couple of demo
- * accounts and a study group, so a fresh clone has something to look at.
+ * Loads the past-question bank into the database.
  *
- *   npm run seed        # add/refresh content, keep existing accounts
+ *   npm run seed        # questions + demo accounts, for local use
  *   npm run reset-db    # wipe the file and start over
+ *
+ * Flags:
+ *   --demo        also create the demo students, group and friendships
+ *   --if-empty    do nothing if questions are already loaded
+ *
+ * `start` runs this with --if-empty and WITHOUT --demo, so a freshly deployed
+ * server fills its empty disk with questions on first boot and never puts
+ * publicly-known demo logins on a live site.
  */
 import Database from "better-sqlite3";
 import bcrypt from "bcryptjs";
@@ -17,6 +24,9 @@ import { neco } from "../src/data/papers/neco.mjs";
 /** Questions after this position in a paper require a premium subscription. */
 const FREE_QUESTIONS_PER_PAPER = 5;
 
+const withDemo = process.argv.includes("--demo");
+const onlyIfEmpty = process.argv.includes("--if-empty");
+
 const file = process.env.DATABASE_PATH || path.join(process.cwd(), "data", "guru.db");
 fs.mkdirSync(path.dirname(path.resolve(file)), { recursive: true });
 
@@ -24,6 +34,15 @@ const db = new Database(file);
 db.pragma("journal_mode = WAL");
 db.pragma("foreign_keys = ON");
 db.exec(SCHEMA);
+
+if (onlyIfEmpty) {
+  const { n } = db.prepare(`SELECT COUNT(*) AS n FROM questions`).get();
+  if (n > 0) {
+    console.log(`✓ ${n} questions already loaded — nothing to do`);
+    db.close();
+    process.exit(0);
+  }
+}
 
 // ------------------------------------------------------------ questions
 
@@ -68,6 +87,15 @@ const seedQuestions = db.transaction(() => {
 seedQuestions();
 
 console.log(`✓ ${count} questions across ${papers.length} papers`);
+
+// Demo logins are published in the README, so they must never exist on a
+// server real students can reach.
+if (!withDemo) {
+  console.log("✓ skipping demo accounts (pass --demo to create them locally)");
+  console.log(`✓ database at ${path.resolve(file)}`);
+  db.close();
+  process.exit(0);
+}
 
 // ---------------------------------------------------------- demo accounts
 
