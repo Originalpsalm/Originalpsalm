@@ -104,7 +104,54 @@ a private window, or sign the first one out.
 | `npm run build` / `npm start` | Production build and serve |
 | `npm run seed` | Load/refresh questions and demo data |
 | `npm run reset-db` | Delete the database and reseed from scratch |
+| `npm run make-owner -- <email>` | Make an account the founder |
+| `npm run make-admin -- <email>` | Grant (or `--remove`) staff access |
 | `npm run typecheck` | TypeScript only, no emit |
+
+---
+
+## Admin and founder panel
+
+Running this product needs a support desk, and the device rules guarantee
+tickets: a student who legitimately changes phone gets locked out by design.
+
+Make yourself the founder — sign up in the app first, then:
+
+```bash
+npm run make-owner -- you@example.com
+```
+
+Sign out and back in, and **Admin** appears in the menu. There is deliberately
+no way to grant yourself access from inside the app; you need server access to
+run that command, which is the point.
+
+`/admin` covers:
+
+- **Overview** — what needs attention first (unconfirmed payments, locked
+  accounts), then sign-ups, revenue and usage.
+- **Students** — search and filter, then a per-student support screen: every
+  device the account has used with first/last seen, sign-in history, payments,
+  papers and groups. Grant or remove premium, **unlock an account and reset its
+  device history**, sign every device out, suspend with a reason the student is
+  shown, or delete.
+- **Payments** — approve a payment by hand for the "my bank debited me" ticket.
+  Approving forces a note explaining why.
+- **Groups / Moderation** — the newest messages across every group, so bullying,
+  malpractice offers and spam surface early.
+- **Content** — every paper ordered by how often it is attempted.
+- **Activity log** — every staff action, and who took it.
+
+### Roles
+
+| Role | Can |
+| --- | --- |
+| `owner` | Everything, including promoting and demoting admins |
+| `admin` | Act on students: premium, unlock, suspend, delete, moderate |
+| `student` | Nothing — `/admin` returns 404, so it does not advertise itself |
+
+Admins cannot act on the owner, on another admin, or on themselves. Permissions
+are enforced inside each server action, not just hidden in the UI, so typing a
+URL gets you nowhere. Every action is appended to a log that the app cannot edit.
 
 ---
 
@@ -190,6 +237,30 @@ paper wholesale rather than duplicating it.
 
 Questions after the fifth in each paper are marked premium automatically
 (`FREE_QUESTIONS_PER_PAPER` in `scripts/seed.mjs`).
+
+---
+
+## Deploying
+
+The app keeps everything in one SQLite file, so it needs a host that offers a
+**persistent disk** — Railway, Render or Fly. A platform without one wipes every
+student account on each deploy.
+
+Set these in the host's dashboard:
+
+| Variable | Value |
+| --- | --- |
+| `AUTH_SECRET` | 48+ random bytes as hex. `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` |
+| `DATABASE_PATH` | A path on the mounted disk, e.g. `/data/guru.db` |
+| `NEXT_PUBLIC_APP_URL` | The public URL, used for the Paystack callback |
+
+Nothing else is needed. `npm start` runs `setup-env` then seeds the question
+bank **only if the database is empty**, so a fresh server fills itself on first
+boot and restarts are a no-op. Demo accounts are never created on a server —
+they require the explicit `--demo` flag that only `npm run seed` passes.
+
+Back up the database file on a schedule. It is the whole product: every account,
+score, group and payment record lives in it.
 
 ---
 
