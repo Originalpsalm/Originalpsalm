@@ -1,0 +1,32 @@
+// Psalm Creations Business Suite — database schema.
+//
+// Conventions (see docs/adr/0001, docs/adr/0003, docs/decision-register.md):
+// - UUID v4 primary keys, generated application-side.
+// - Every business table: organizationId + createdAt/updatedAt/deletedAt
+//   + createdById/updatedById/deletedById actor fields.
+// - Uniqueness on business fields via per-tenant partial indexes
+//   (raw SQL in migrations), never plain @unique.
+// - Money: Decimal(19,4) unit prices · Decimal(19,2) totals · currencyCode.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// A tenant. Every business record belongs to exactly one organization
+/// (ADR-0001). Phase 1 operates as a single organization inside this model.
+model Organization {
+  id           String    @id @default(uuid()) @db.Uuid
+  name         String
+  baseCurrency String    @default("NGN") @db.Char(3)
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  @@map("organization")
+}

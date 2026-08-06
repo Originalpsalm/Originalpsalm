@@ -9,6 +9,17 @@ must be recorded here — and only after it has actually shipped.
 
 ## [Unreleased]
 
+### Added
+
+- PostgreSQL 16 + Prisma 7 database layer: driver-adapter client singleton,
+  first migration (`organization` table per ADR-0001, NGN base currency)
+- `AppError` taxonomy mapped to HTTP statuses 400/401/403/404/409/422 (ADR-0007)
+- Standard response envelope helpers and `handleRoute` error boundary
+  (sanitized 500s with correlation IDs)
+- Structured JSON logger with automatic redaction of sensitive keys
+- `GET /api/v1/health` — liveness + database reachability (200 / 503)
+- Vitest unit test suite wired into CI (error taxonomy, envelope, boundary)
+
 ## [0.0.1] — 2026-08-05
 
 ### Added
