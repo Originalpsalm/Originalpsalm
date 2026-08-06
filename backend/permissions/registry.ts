@@ -143,9 +143,9 @@ export function resolveGrants(grants: readonly string[]): string[] {
 
   for (const grant of grants) {
     if (grant.endsWith(".*")) {
-      const module = grant.slice(0, -2);
+      const moduleName = grant.slice(0, -2);
       for (const permission of permissions) {
-        if (permission.module === module) {
+        if (permission.module === moduleName) {
           keys.add(permission.key);
         }
       }
