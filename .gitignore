@@ -45,3 +45,7 @@ next-env.d.ts
 /lib/generated/
 
 /app/generated/prisma
+
+# tool-generated skill scaffolding
+/.claude/skills/
+skills-lock.json
