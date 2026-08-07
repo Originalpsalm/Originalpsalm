@@ -16,6 +16,7 @@ export type Overview = {
   revenueNaira: number;
   revenueThisMonthNaira: number;
   pendingPayments: number;
+  pendingResets: number;
 };
 
 export function overview(): Overview {
@@ -49,6 +50,10 @@ export function overview(): Overview {
   const pendingPayments = one<{ n: number }>(
     `SELECT COUNT(*) AS n FROM payments WHERE status = 'pending'`,
   ).n;
+  const pendingResets = one<{ n: number }>(
+    `SELECT COUNT(*) AS n FROM password_resets
+      WHERE used_at IS NULL AND delivered = 0 AND expires_at > datetime('now')`,
+  ).n;
 
   return {
     users,
@@ -62,6 +67,7 @@ export function overview(): Overview {
     revenueNaira: Math.round(revenue / 100),
     revenueThisMonthNaira: Math.round(revenueMonth / 100),
     pendingPayments,
+    pendingResets,
   };
 }
 
@@ -363,6 +369,61 @@ export function listActions(limit = 100) {
 }
 
 // ================================================================== content
+
+export type PaperKey = { exam_body: string; subject: string; year: number };
+
+export function paperExists(key: PaperKey): boolean {
+  return !!db
+    .prepare(
+      `SELECT 1 FROM questions WHERE exam_body = ? AND subject = ? AND year = ?`,
+    )
+    .get(key.exam_body, key.subject, key.year);
+}
+
+/** Fetches every question in a paper, ordered as students see them. */
+export function paperQuestions(key: PaperKey) {
+  return db
+    .prepare(
+      `SELECT * FROM questions
+        WHERE exam_body = ? AND subject = ? AND year = ?
+        ORDER BY number`,
+    )
+    .all(key.exam_body, key.subject, key.year) as {
+    id: number;
+    exam_body: string;
+    subject: string;
+    year: number;
+    number: number;
+    text: string;
+    option_a: string;
+    option_b: string;
+    option_c: string;
+    option_d: string;
+    answer: "A" | "B" | "C" | "D";
+    explanation: string | null;
+    topic: string | null;
+    is_premium: number;
+  }[];
+}
+
+/** Next question number for a paper, so new questions are appended cleanly. */
+export function nextQuestionNumber(key: PaperKey): number {
+  const row = db
+    .prepare(
+      `SELECT COALESCE(MAX(number), 0) + 1 AS n FROM questions
+        WHERE exam_body = ? AND subject = ? AND year = ?`,
+    )
+    .get(key.exam_body, key.subject, key.year) as { n: number };
+  return row.n;
+}
+
+/** Every distinct subject that has ever had a paper, for the "new paper" picker. */
+export function knownSubjects(): string[] {
+  const rows = db
+    .prepare(`SELECT DISTINCT subject FROM questions ORDER BY subject`)
+    .all() as { subject: string }[];
+  return rows.map((row) => row.subject);
+}
 
 export function contentBreakdown() {
   return db

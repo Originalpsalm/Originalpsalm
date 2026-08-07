@@ -20,8 +20,25 @@ export default function AdminOverviewPage() {
   return (
     <div className="space-y-5">
       {/* Anything needing attention is surfaced before the vanity numbers. */}
-      {(stats.pendingPayments > 0 || stats.locked > 0) && (
-        <div className="grid gap-3 sm:grid-cols-2">
+      {(stats.pendingPayments > 0 || stats.locked > 0 || stats.pendingResets > 0) && (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {stats.pendingResets > 0 && (
+            <Link
+              href="/admin/resets"
+              className="focus-ring card flex items-center gap-3 border-leaf-500/30 p-4 transition hover:border-leaf-500/60"
+            >
+              <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-leaf-500/12 text-leaf-400">
+                🔑
+              </span>
+              <p className="text-sm">
+                <span className="font-bold">{stats.pendingResets}</span> password reset
+                {stats.pendingResets === 1 ? "" : "s"} to hand-deliver
+                <span className="block text-xs text-mist">
+                  Only until you plug in an email service
+                </span>
+              </p>
+            </Link>
+          )}
           {stats.pendingPayments > 0 && (
             <Link
               href="/admin/payments?status=pending"

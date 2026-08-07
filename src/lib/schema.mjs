@@ -38,6 +38,18 @@ export const SCHEMA = `
     );
     CREATE INDEX IF NOT EXISTS idx_admin_actions ON admin_actions(created_at DESC);
 
+    -- Password resets. Tokens are single-use with a short expiry; a delivered
+    -- token is deleted on use, so no live URL survives a successful reset.
+    CREATE TABLE IF NOT EXISTS password_resets (
+      token       TEXT    PRIMARY KEY,        -- opaque, 32+ bytes
+      user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
+      expires_at  TEXT    NOT NULL,
+      used_at     TEXT,
+      delivered   INTEGER NOT NULL DEFAULT 0  -- 0 until an email service handles it
+    );
+    CREATE INDEX IF NOT EXISTS idx_resets_user ON password_resets(user_id);
+
     -- Every sign-in creates a row. Enforcing "one account = one person" is
     -- done by counting rows here, so we keep revoked ones for the audit trail.
     CREATE TABLE IF NOT EXISTS sessions (

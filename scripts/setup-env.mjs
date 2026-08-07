@@ -48,6 +48,13 @@ DEVICE_WINDOW_DAYS=30
 PAYSTACK_SECRET_KEY=
 NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=
 
+# Email delivery for password-reset links. Leave RESEND_API_KEY blank and
+# reset links appear in the admin's "Password resets" tab for you to send by
+# hand — students are never blocked. Add a key to switch to automatic delivery.
+# Get a key at https://resend.com (free tier available).
+RESEND_API_KEY=
+EMAIL_FROM=
+
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 `,
     { mode: 0o600 },
