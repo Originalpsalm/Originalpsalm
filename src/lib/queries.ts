@@ -1,4 +1,5 @@
 import "server-only";
+import crypto from "node:crypto";
 import { db } from "./db";
 import type {
   Attempt,
@@ -366,13 +367,17 @@ export function groupMessages(groupId: number, limit = 100): Message[] {
   return rows.reverse();
 }
 
-/** Six characters, no ambiguous 0/O/1/I, so codes are easy to read aloud. */
+/**
+ * Six characters, no ambiguous 0/O/1/I, so codes are easy to read aloud.
+ * Drawn from crypto randomness — private-group codes are access credentials,
+ * and Math.random would make them predictable enough to enumerate.
+ */
 export function makeInviteCode(): string {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   for (let attempt = 0; attempt < 20; attempt++) {
     let code = "";
     for (let i = 0; i < 6; i++) {
-      code += alphabet[Math.floor(Math.random() * alphabet.length)];
+      code += alphabet[crypto.randomInt(alphabet.length)];
     }
     if (!db.prepare(`SELECT 1 FROM groups WHERE invite_code = ?`).get(code)) return code;
   }

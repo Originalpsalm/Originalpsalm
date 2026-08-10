@@ -14,6 +14,13 @@ import {
   type ActiveSession,
 } from "@/lib/auth";
 import type { User } from "@/lib/types";
+import { LIMITS, allow, callerIp } from "@/lib/rate-limit";
+import crypto from "node:crypto";
+
+// A throwaway hash used to equalise login timing when no account matches —
+// hashing runs whether or not the user exists, so response time reveals
+// nothing. Never matches a typed password.
+const DUMMY_HASH = hashPassword(crypto.randomUUID());
 
 export type AuthState = {
   error?: string;
@@ -44,6 +51,10 @@ export async function signupAction(_prev: AuthState, formData: FormData): Promis
     return { error: parsed.error.issues[0]?.message ?? "Please check the form." };
   }
   const input = parsed.data;
+
+  if (!allow(`signup:${await callerIp()}`, LIMITS.signup.max, LIMITS.signup.windowMs)) {
+    return { error: "Too many accounts created from this connection. Try again later." };
+  }
 
   const clash = db
     .prepare(`SELECT email, username FROM users WHERE email = ? OR username = ?`)
@@ -93,13 +104,21 @@ export async function loginAction(_prev: AuthState, formData: FormData): Promise
   const { email, password } = parsed.data;
   const force = formData.get("force") === "1";
 
+  // Keyed on IP + identifier: a guessing script is cut off, while a student
+  // on shared school wifi trying their own account is not.
+  if (!allow(`login:${await callerIp()}:${email}`, LIMITS.login.max, LIMITS.login.windowMs)) {
+    return { error: "Too many attempts. Wait a few minutes and try again." };
+  }
+
   const user = db
     .prepare(`SELECT * FROM users WHERE email = ? OR username = ?`)
     .get(email, email) as User | undefined;
 
   // Same message either way, so the form can't be used to discover who has an
-  // account here.
-  if (!user || !verifyPassword(password, user.password_hash)) {
+  // account here. Hashing runs on both paths too — otherwise the fast
+  // "no such user" response would leak which emails are registered.
+  const passwordOk = verifyPassword(password, user?.password_hash ?? DUMMY_HASH);
+  if (!user || !passwordOk) {
     return { error: "Email or password is not correct." };
   }
 

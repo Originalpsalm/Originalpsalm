@@ -1,6 +1,6 @@
 import { Check, Crown, Info, ShieldCheck } from "lucide-react";
 import { isPremium, requireUser } from "@/lib/auth";
-import { PLANS, isMockBilling, paymentsFor } from "@/lib/billing";
+import { PLANS, isBillingDisabled, isMockBilling, paymentsFor } from "@/lib/billing";
 import { Badge, ButtonLink, naira } from "@/components/ui";
 import { Checkout } from "./Checkout";
 
@@ -72,7 +72,18 @@ export default async function PremiumPage() {
       </section>
 
       {/* ------------------------------------------------------- checkout --- */}
-      <Checkout plans={[...PLANS]} isMock={isMockBilling} premium={premium} />
+      {isBillingDisabled ? (
+        <section className="card p-6 text-center">
+          <Info size={22} className="mx-auto text-gold-400" />
+          <h2 className="mt-3 font-bold">Payments are almost ready</h2>
+          <p className="mx-auto mt-2 max-w-md text-sm text-mist">
+            We are completing our payment setup. Premium purchases open very soon — everything free
+            stays free in the meantime.
+          </p>
+        </section>
+      ) : (
+        <Checkout plans={[...PLANS]} isMock={isMockBilling} premium={premium} />
+      )}
 
       {isMockBilling && (
         <div className="surface flex gap-3 p-4 text-sm text-mist">

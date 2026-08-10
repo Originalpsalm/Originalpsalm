@@ -7,6 +7,7 @@ import { completeReset, hasEmailService, requestReset } from "@/lib/passwords";
 import { requireAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { recordAction } from "@/lib/admin";
+import { LIMITS, allow, callerIp } from "@/lib/rate-limit";
 
 export type ForgotState = { error?: string; success?: boolean };
 
@@ -22,12 +23,20 @@ export async function forgotPasswordAction(
   const parsed = forgotSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.issues[0]?.message };
 
+  // Limited per IP + address so nobody can bomb a victim's inbox. The reply
+  // still claims success — a "slow down" here would itself confirm that the
+  // address is registered.
+  const email = parsed.data.email.trim().toLowerCase();
+  if (!allow(`forgot:${await callerIp()}:${email}`, LIMITS.forgot.max, LIMITS.forgot.windowMs)) {
+    return { success: true };
+  }
+
   const head = await headers();
   const proto = head.get("x-forwarded-proto") ?? "https";
   const host = head.get("host") ?? "localhost:3000";
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || `${proto}://${host}`;
 
-  await requestReset(parsed.data.email, appUrl);
+  await requestReset(email, appUrl);
   return { success: true };
 }
 

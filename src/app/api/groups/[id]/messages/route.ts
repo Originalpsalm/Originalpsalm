@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { groupMessages, isMember } from "@/lib/queries";
+import { LIMITS, allow } from "@/lib/rate-limit";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -31,6 +32,13 @@ export async function POST(request: Request, { params }: Context) {
   const groupId = Number((await params).id);
   if (!Number.isInteger(groupId) || !isMember(groupId, user.id)) {
     return NextResponse.json({ error: "Not a member of this group" }, { status: 403 });
+  }
+
+  if (!allow(`message:${user.id}`, LIMITS.message.max, LIMITS.message.windowMs)) {
+    return NextResponse.json(
+      { error: "You are sending messages too quickly. Give it a moment." },
+      { status: 429 },
+    );
   }
 
   const payload = (await request.json().catch(() => null)) as { body?: unknown } | null;

@@ -30,12 +30,18 @@ export function planFor(id: string) {
 const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY ?? "";
 
 /**
- * With no Paystack secret configured we run the whole subscription flow
- * against a local stub. Everything else — references, records, the callback
- * page, the unlock — behaves identically, so the app is fully testable before
- * the live keys exist.
+ * With no Paystack secret configured, the subscription flow runs against a
+ * local stub — but ONLY off production. Left on for a deployed site, the stub
+ * would be a free-premium button for anyone who found it, so in production
+ * missing keys mean payments are simply disabled until they are added.
+ * (ALLOW_MOCK_BILLING=1 exists for staging environments that want the stub.)
  */
-export const isMockBilling = !PAYSTACK_SECRET;
+export const isMockBilling =
+  !PAYSTACK_SECRET &&
+  (process.env.NODE_ENV !== "production" || process.env.ALLOW_MOCK_BILLING === "1");
+
+/** True when neither real keys nor the (permitted) stub are available. */
+export const isBillingDisabled = !PAYSTACK_SECRET && !isMockBilling;
 
 export function newReference(): string {
   return "guru_" + crypto.randomBytes(9).toString("hex");
@@ -50,6 +56,13 @@ export async function initializePayment(input: {
   email: string;
   planId: string;
 }): Promise<InitResult> {
+  if (isBillingDisabled) {
+    return {
+      ok: false,
+      error:
+        "Payments are not switched on yet. Practice stays free — check back soon for Premium.",
+    };
+  }
   const plan = planFor(input.planId);
   const reference = newReference();
   const amountKobo = plan.naira * 100;
@@ -134,6 +147,12 @@ export async function verifyAndActivate(
   const payment = paymentByReference(reference);
   if (!payment) return { ok: false, error: "We could not find that payment." };
   if (payment.status === "success") return { ok: true, months: payment.months };
+
+  // A stub payment can only complete where the stub itself is permitted —
+  // records created while testing must not unlock anything on production.
+  if (payment.provider === "mock" && !isMockBilling) {
+    return { ok: false, error: "That test payment cannot be used here." };
+  }
 
   if (payment.provider !== "mock") {
     try {
