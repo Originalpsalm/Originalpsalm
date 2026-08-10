@@ -15,13 +15,16 @@ const TABS = [
   { href: "/admin/activity", label: "Activity log" },
 ];
 
+const OWNER_TABS = [{ href: "/admin/branding", label: "Branding", exact: false }];
+
 export function AdminTabs({ isOwner }: { isOwner: boolean }) {
   const pathname = usePathname();
+  const tabs = isOwner ? [...TABS, ...OWNER_TABS] : TABS;
 
   return (
     <nav className="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0">
       <ul className="flex min-w-max gap-1.5 border-b border-leaf-500/12 pb-px">
-        {TABS.map((tab) => {
+        {tabs.map((tab) => {
           const active = tab.exact ? pathname === tab.href : pathname.startsWith(tab.href);
           return (
             <li key={tab.href}>

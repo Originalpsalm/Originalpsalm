@@ -50,6 +50,17 @@ export const SCHEMA = `
     );
     CREATE INDEX IF NOT EXISTS idx_resets_user ON password_resets(user_id);
 
+    -- Small key/value store for owner-configurable settings. The logo lives
+    -- here as a blob so it survives deploys (it is on the mounted disk with
+    -- everything else) and needs no separate file hosting.
+    CREATE TABLE IF NOT EXISTS app_settings (
+      key         TEXT PRIMARY KEY,
+      value       TEXT,
+      blob        BLOB,
+      mime        TEXT,
+      updated_at  TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     -- Every sign-in creates a row. Enforcing "one account = one person" is
     -- done by counting rows here, so we keep revoked ones for the audit trail.
     CREATE TABLE IF NOT EXISTS sessions (
