@@ -60,12 +60,13 @@ export type QuizQuestion = Omit<Question, "answer" | "explanation" | "is_premium
 export type Attempt = {
   id: number;
   user_id: number;
-  exam_body: ExamBody;
+  exam_body: string;
   subject: string;
   year: number;
   total: number;
   score: number;
   seconds_spent: number;
+  mode: "paper" | "speed";
   finished_at: string;
 };
 

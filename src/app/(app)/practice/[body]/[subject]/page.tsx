@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Crown, Lock, Play } from "lucide-react";
 import { isPremium, requireUser } from "@/lib/auth";
-import { papersFor } from "@/lib/queries";
+import { papersWithAccess } from "@/lib/queries";
+import { freeYears } from "@/lib/content-rules";
 import { EXAM_BODIES, type ExamBody } from "@/lib/types";
 import { Badge, ButtonLink } from "@/components/ui";
 
@@ -19,11 +20,13 @@ export default async function SubjectPage({ params }: Props) {
   if (!examBody) notFound();
 
   const subjectName = decodeURIComponent(subject);
-  const papers = papersFor(examBody.id as ExamBody, subjectName);
+  const nFree = freeYears();
+  const papers = papersWithAccess(examBody.id as ExamBody, subjectName, nFree);
   if (papers.length === 0) notFound();
 
   const user = await requireUser();
   const premium = isPremium(user);
+  const premiumYears = papers.filter((p) => !p.is_free).length;
 
   return (
     <div className="space-y-6">
@@ -42,55 +45,57 @@ export default async function SubjectPage({ params }: Props) {
         </p>
       </header>
 
-      {!premium && (
+      {!premium && premiumYears > 0 && (
         <div className="surface flex flex-wrap items-center gap-3 p-4">
           <Lock size={17} className="shrink-0 text-gold-400" />
           <p className="min-w-0 flex-1 text-sm text-mist">
-            On the free plan you attempt the first {papers[0].free_count} questions of each paper.
+            The {nFree} most recent years are free. Premium opens{" "}
+            <span className="font-semibold text-chalk">{premiumYears} more years</span> of this
+            subject.
           </p>
           <ButtonLink href="/premium" variant="gold" size="sm">
-            <Crown size={14} /> Unlock all
+            <Crown size={14} /> Unlock all years
           </ButtonLink>
         </div>
       )}
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {papers.map((paper) => {
-          const available = premium ? paper.total : paper.free_count;
+          const locked = !paper.is_free && !premium;
+          const href = locked
+            ? "/premium"
+            : `/practice/${examBody.id}/${encodeURIComponent(subjectName)}/${paper.year}`;
           return (
-            <article key={paper.year} className="card flex flex-col p-5">
+            <article
+              key={paper.year}
+              className={
+                "card flex flex-col p-5" + (locked ? " opacity-90" : "")
+              }
+            >
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-2xl font-extrabold">{paper.year}</p>
-                  <p className="mt-0.5 text-xs text-mist">
-                    {paper.total} questions in this paper
-                  </p>
+                  <p className="mt-0.5 text-xs text-mist">{paper.total} questions</p>
                 </div>
-                {premium ? (
-                  <Badge tone="gold">
-                    <Crown size={11} /> Full
-                  </Badge>
+                {paper.is_free ? (
+                  <Badge tone="leaf">Free</Badge>
                 ) : (
-                  <Badge tone="mist">
-                    {paper.free_count}/{paper.total} free
+                  <Badge tone="gold">
+                    <Crown size={11} /> Premium
                   </Badge>
                 )}
               </div>
 
-              <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-ink-700">
-                <div
-                  className="h-full rounded-full brand-gradient"
-                  style={{ width: `${(available / paper.total) * 100}%` }}
-                />
-              </div>
-
-              <ButtonLink
-                href={`/practice/${examBody.id}/${encodeURIComponent(subjectName)}/${paper.year}`}
-                size="sm"
-                className="mt-5 w-full"
-              >
-                <Play size={15} /> Start {available} {available === 1 ? "question" : "questions"}
-              </ButtonLink>
+              {locked ? (
+                <ButtonLink href="/premium" variant="gold" size="sm" className="mt-5 w-full">
+                  <Lock size={14} /> Unlock with Premium
+                </ButtonLink>
+              ) : (
+                <ButtonLink href={href} size="sm" className="mt-5 w-full">
+                  <Play size={15} /> Start {paper.total}{" "}
+                  {paper.total === 1 ? "question" : "questions"}
+                </ButtonLink>
+              )}
             </article>
           );
         })}

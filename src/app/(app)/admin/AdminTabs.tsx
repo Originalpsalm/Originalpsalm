@@ -15,7 +15,10 @@ const TABS = [
   { href: "/admin/activity", label: "Activity log" },
 ];
 
-const OWNER_TABS = [{ href: "/admin/branding", label: "Branding", exact: false }];
+const OWNER_TABS = [
+  { href: "/admin/branding", label: "Branding", exact: false },
+  { href: "/admin/settings", label: "Settings", exact: false },
+];
 
 export function AdminTabs({ isOwner }: { isOwner: boolean }) {
   const pathname = usePathname();

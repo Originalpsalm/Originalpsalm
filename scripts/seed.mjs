@@ -21,8 +21,6 @@ import { waec } from "../src/data/papers/waec.mjs";
 import { jamb } from "../src/data/papers/jamb.mjs";
 import { neco } from "../src/data/papers/neco.mjs";
 
-/** Questions after this position in a paper require a premium subscription. */
-const FREE_QUESTIONS_PER_PAPER = 5;
 
 const withDemo = process.argv.includes("--demo");
 const onlyIfEmpty = process.argv.includes("--if-empty");
@@ -78,7 +76,7 @@ const seedQuestions = db.transaction(() => {
         question.ans,
         question.why ?? null,
         question.topic ?? null,
-        number > FREE_QUESTIONS_PER_PAPER ? 1 : 0,
+        0, // gating is year-based now; is_premium is unused
       );
       count++;
     });

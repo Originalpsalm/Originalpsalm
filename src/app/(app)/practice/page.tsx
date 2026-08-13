@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BookOpenCheck } from "lucide-react";
+import { ArrowRight, BookOpenCheck, Timer, Zap } from "lucide-react";
 import { subjectsFor } from "@/lib/queries";
 import { EXAM_BODIES } from "@/lib/types";
 import { Badge } from "@/components/ui";
@@ -17,6 +17,31 @@ export default function PracticePage() {
           Pick an exam body, then a subject, then the year you want to attempt.
         </p>
       </header>
+
+      {/* Speed Mode — the timed, addictive way to practise. */}
+      <Link
+        href="/practice/speed"
+        className="focus-ring card group flex items-center gap-4 overflow-hidden p-5 transition hover:border-gold-500/40"
+      >
+        <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-gold-500/12 text-gold-400">
+          <Zap size={24} strokeWidth={2.1} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-lg font-bold">Speed Mode</h2>
+            <Badge tone="gold">
+              <Timer size={11} /> Timed
+            </Badge>
+          </div>
+          <p className="mt-0.5 text-sm text-mist">
+            A random mix under the clock — pick 10, 20 or 40 and test your exam-day speed.
+          </p>
+        </div>
+        <ArrowRight
+          size={18}
+          className="shrink-0 text-mist transition group-hover:translate-x-0.5 group-hover:text-gold-400"
+        />
+      </Link>
 
       {bodies.map((body) => (
         <section key={body.id}>

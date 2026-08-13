@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Crown, Pencil, Plus, Trash2, Unlock } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { requireAdmin } from "@/lib/auth";
 import { paperQuestions } from "@/lib/admin";
-import {
-  deleteQuestionAction,
-  toggleQuestionPremiumAction,
-} from "@/actions/content";
+import { isPaperFree } from "@/lib/content-rules";
+import { deleteQuestionAction } from "@/actions/content";
 import { Alert, Badge, Button, cn } from "@/components/ui";
 import { EXAM_BODIES } from "@/lib/types";
 import { QuestionEditor } from "./QuestionEditor";
@@ -37,7 +35,6 @@ export default async function EditPaperPage({ params, searchParams }: Props) {
 
   const editingId = Number(edit);
   const editing = editingId ? questions.find((q) => q.id === editingId) : null;
-  const startEmpty = questions.length === 0;
 
   return (
     <div className="space-y-5">
@@ -58,10 +55,13 @@ export default async function EditPaperPage({ params, searchParams }: Props) {
           </h2>
           <p className="text-xs text-mist">
             {questions.length} {questions.length === 1 ? "question" : "questions"}
-            {questions.length > 0 &&
-              ` · ${questions.filter((q) => q.is_premium === 0).length} free`}
           </p>
         </div>
+        {isPaperFree(examBody.id, subjectName, yearNumber) ? (
+          <Badge tone="leaf">Free year</Badge>
+        ) : (
+          <Badge tone="gold">Premium year</Badge>
+        )}
       </header>
 
       {added === "1" && (
@@ -81,7 +81,6 @@ export default async function EditPaperPage({ params, searchParams }: Props) {
           subject={subjectName}
           year={yearNumber}
           question={editing ?? null}
-          startEmpty={startEmpty && !editing}
         />
 
         {editing && (
@@ -126,30 +125,11 @@ export default async function EditPaperPage({ params, searchParams }: Props) {
                       <p className="text-sm leading-relaxed">{question.text}</p>
                       <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-mist">
                         <Badge tone="leaf">Answer {question.answer}</Badge>
-                        {question.is_premium ? (
-                          <Badge tone="gold">
-                            <Crown size={10} /> Premium
-                          </Badge>
-                        ) : (
-                          <Badge tone="mist">Free</Badge>
-                        )}
                         {question.topic && <Badge tone="mist">{question.topic}</Badge>}
                       </p>
                     </div>
 
                     <div className="flex shrink-0 flex-wrap items-center gap-1.5">
-                      <form action={toggleQuestionPremiumAction}>
-                        <input type="hidden" name="id" value={question.id} />
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          aria-label={question.is_premium ? "Mark free" : "Mark premium"}
-                          title={question.is_premium ? "Mark this question free" : "Mark premium"}
-                        >
-                          {question.is_premium ? <Unlock size={13} /> : <Crown size={13} />}
-                        </Button>
-                      </form>
-
                       <Link
                         href={`/admin/content/${examBody.id}/${encodeURIComponent(subjectName)}/${yearNumber}?edit=${question.id}#new`}
                         className="focus-ring inline-flex items-center gap-1.5 rounded-full border border-leaf-500/20 px-3 py-1.5 text-xs font-semibold hover:border-leaf-500/45"

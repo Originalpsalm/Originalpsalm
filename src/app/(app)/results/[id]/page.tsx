@@ -36,12 +36,14 @@ export default async function ResultsPage({ params }: Props) {
     ...new Set(review.filter((row) => !row.correct && row.topic).map((row) => row.topic!)),
   ].slice(0, 6);
 
+  const isSpeed = attempt.mode === "speed";
+
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       {/* -------------------------------------------------------- score --- */}
       <section className="card animate-rise p-6 text-center sm:p-9">
         <p className="text-sm text-mist">
-          {attempt.subject} · {attempt.exam_body} {attempt.year}
+          {isSpeed ? attempt.subject : `${attempt.subject} · ${attempt.exam_body} ${attempt.year}`}
         </p>
 
         <div
@@ -74,17 +76,30 @@ export default async function ResultsPage({ params }: Props) {
         </div>
 
         <div className="mt-7 flex flex-wrap justify-center gap-3">
-          <ButtonLink
-            href={`/practice/${attempt.exam_body}/${encodeURIComponent(attempt.subject)}/${attempt.year}`}
-          >
-            <RotateCcw size={16} /> Try again
-          </ButtonLink>
-          <ButtonLink
-            href={`/practice/${attempt.exam_body}/${encodeURIComponent(attempt.subject)}`}
-            variant="ghost"
-          >
-            Another year
-          </ButtonLink>
+          {isSpeed ? (
+            <>
+              <ButtonLink href="/practice/speed">
+                <RotateCcw size={16} /> Another speed test
+              </ButtonLink>
+              <ButtonLink href="/practice" variant="ghost">
+                Practice papers
+              </ButtonLink>
+            </>
+          ) : (
+            <>
+              <ButtonLink
+                href={`/practice/${attempt.exam_body}/${encodeURIComponent(attempt.subject)}/${attempt.year}`}
+              >
+                <RotateCcw size={16} /> Try again
+              </ButtonLink>
+              <ButtonLink
+                href={`/practice/${attempt.exam_body}/${encodeURIComponent(attempt.subject)}`}
+                variant="ghost"
+              >
+                Another year
+              </ButtonLink>
+            </>
+          )}
           <ButtonLink href="/groups" variant="ghost">
             <Share2 size={16} /> Discuss in a group
           </ButtonLink>

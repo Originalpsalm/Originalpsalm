@@ -61,6 +61,20 @@ export const SCHEMA = `
       updated_at  TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    -- A Speed Mode test: the chosen questions (as a JSON id array) and its time
+    -- budget. The picked set is stored server-side so the browser never sees the
+    -- answers and marking is done against the same questions.
+    CREATE TABLE IF NOT EXISTS speed_tests (
+      id              INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id         INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      question_ids    TEXT    NOT NULL,          -- JSON array of question ids
+      seconds_allowed INTEGER NOT NULL,
+      scope_body      TEXT,
+      scope_subject   TEXT,
+      created_at      TEXT    NOT NULL DEFAULT (datetime('now')),
+      attempt_id      INTEGER REFERENCES attempts(id) ON DELETE SET NULL
+    );
+
     -- Every sign-in creates a row. Enforcing "one account = one person" is
     -- done by counting rows here, so we keep revoked ones for the audit trail.
     CREATE TABLE IF NOT EXISTS sessions (
@@ -117,6 +131,7 @@ export const SCHEMA = `
       total         INTEGER NOT NULL,
       score         INTEGER NOT NULL DEFAULT 0,
       seconds_spent INTEGER NOT NULL DEFAULT 0,
+      mode          TEXT    NOT NULL DEFAULT 'paper',   -- 'paper' | 'speed'
       finished_at   TEXT    NOT NULL DEFAULT (datetime('now'))
     );
     CREATE INDEX IF NOT EXISTS idx_attempts_user ON attempts(user_id, finished_at DESC);

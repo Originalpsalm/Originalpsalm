@@ -42,3 +42,26 @@ export function logoVersion(): string {
   const info = getLogoInfo();
   return info ? info.updated_at.replace(/\D/g, "") : "0";
 }
+
+// -------------------------------------------------------- text settings
+
+/** Generic key/value text settings, with a fallback default. */
+export function getSetting(key: string, fallback: string): string {
+  const row = db
+    .prepare(`SELECT value FROM app_settings WHERE key = ?`)
+    .get(key) as { value: string | null } | undefined;
+  return row?.value ?? fallback;
+}
+
+export function setSetting(key: string, value: string): void {
+  db.prepare(
+    `INSERT INTO app_settings (key, value, updated_at)
+     VALUES (?, ?, datetime('now'))
+     ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = datetime('now')`,
+  ).run(key, value);
+}
+
+export function getNumberSetting(key: string, fallback: number): number {
+  const value = Number(getSetting(key, String(fallback)));
+  return Number.isFinite(value) ? value : fallback;
+}

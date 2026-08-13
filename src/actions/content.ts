@@ -22,7 +22,6 @@ const questionSchema = z.object({
   answer: z.enum(["A", "B", "C", "D"]),
   explanation: z.string().trim().max(2000).optional().or(z.literal("")),
   topic: z.string().trim().max(60).optional().or(z.literal("")),
-  is_premium: z.string().optional(),
 });
 
 type FieldErrors = Partial<Record<keyof z.infer<typeof questionSchema>, string>>;
@@ -60,8 +59,6 @@ export async function saveQuestionAction(
   }
 
   const input = parsed.data;
-  const isPremium = input.is_premium === "on" ? 1 : 0;
-
   if (editingId) {
     const existing = db
       .prepare(`SELECT exam_body, subject, year FROM questions WHERE id = ?`)
@@ -75,8 +72,7 @@ export async function saveQuestionAction(
               option_c = @option_c, option_d = @option_d,
               answer = @answer,
               explanation = @explanation,
-              topic = @topic,
-              is_premium = @is_premium
+              topic = @topic
         WHERE id = @id`,
     ).run({
       id: editingId,
@@ -88,7 +84,6 @@ export async function saveQuestionAction(
       answer: input.answer,
       explanation: input.explanation || null,
       topic: input.topic || null,
-      is_premium: isPremium,
     });
 
     recordAction({
@@ -117,7 +112,7 @@ export async function saveQuestionAction(
           (exam_body, subject, year, number, text, option_a, option_b, option_c,
            option_d, answer, explanation, topic, is_premium)
         VALUES (@exam_body, @subject, @year, @number, @text, @option_a, @option_b,
-                @option_c, @option_d, @answer, @explanation, @topic, @is_premium)`,
+                @option_c, @option_d, @answer, @explanation, @topic, 0)`,
     )
     .run({
       exam_body: input.exam_body,
@@ -132,7 +127,6 @@ export async function saveQuestionAction(
       answer: input.answer,
       explanation: input.explanation || null,
       topic: input.topic || null,
-      is_premium: isPremium,
     });
 
   recordAction({
@@ -189,34 +183,6 @@ export async function deleteQuestionAction(formData: FormData) {
   redirect(
     `/admin/content/${question.exam_body}/${encodeURIComponent(question.subject)}/${question.year}`,
   );
-}
-
-/**
- * The premium flag defaults to "first five free" at seed time, but each
- * question is toggleable one-by-one from the question list.
- */
-export async function toggleQuestionPremiumAction(formData: FormData) {
-  const actor = await requireAdmin();
-  const id = Number(formData.get("id"));
-  const question = db
-    .prepare(`SELECT id, exam_body, subject, year, is_premium FROM questions WHERE id = ?`)
-    .get(id) as
-    | { id: number; exam_body: string; subject: string; year: number; is_premium: number }
-    | undefined;
-  if (!question) return;
-
-  const flipped = question.is_premium ? 0 : 1;
-  db.prepare(`UPDATE questions SET is_premium = ? WHERE id = ?`).run(flipped, question.id);
-
-  recordAction({
-    actorId: actor.id,
-    action: "question.toggle_premium",
-    targetType: "question",
-    targetId: question.id,
-    targetLabel: `${question.exam_body} ${question.subject} ${question.year}`,
-    detail: flipped ? "Marked premium" : "Marked free",
-  });
-  pathsToRefresh(question.exam_body, question.subject, question.year);
 }
 
 const paperSchema = z.object({

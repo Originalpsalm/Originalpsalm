@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { isPremium, requireUser } from "@/lib/auth";
 import { questionsByIds, recordAttempt } from "@/lib/queries";
+import { isPaperFree } from "@/lib/content-rules";
 import type { ExamBody } from "@/lib/types";
 
 export type SubmissionPayload = {
@@ -25,14 +26,18 @@ export async function submitAttemptAction(payload: SubmissionPayload) {
   const user = await requireUser();
   const premium = isPremium(user);
 
+  // Gating is per-year now: a free student may only submit a free (recent)
+  // year. Premium years are refused server-side regardless of what is posted.
+  if (!premium && !isPaperFree(payload.body, payload.subject, payload.year)) {
+    redirect("/premium");
+  }
+
   const ids = Object.keys(payload.answers).map(Number).filter(Number.isInteger);
   const questions = questionsByIds(ids).filter(
     (question) =>
       question.exam_body === payload.body &&
       question.subject === payload.subject &&
-      question.year === payload.year &&
-      // A free account's submission cannot include locked questions.
-      (premium || question.is_premium === 0),
+      question.year === payload.year,
   );
 
   if (questions.length === 0) redirect("/practice");

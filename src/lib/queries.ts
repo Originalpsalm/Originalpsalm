@@ -21,6 +21,19 @@ export type PaperSummary = {
   free_count: number;
 };
 
+/**
+ * Papers for a subject, newest first, each flagged free/premium by the
+ * year-recency rule. `is_free` is what the practice pages gate on.
+ */
+export function papersWithAccess(
+  body: ExamBody,
+  subject: string,
+  freeYearCount: number,
+): (PaperSummary & { is_free: boolean })[] {
+  const papers = papersFor(body, subject); // already sorted year DESC
+  return papers.map((paper, index) => ({ ...paper, is_free: index < freeYearCount }));
+}
+
 export function subjectsFor(body: ExamBody): { subject: string; papers: number; total: number }[] {
   return db
     .prepare(
@@ -80,6 +93,57 @@ export function questionsByIds(ids: number[]): Question[] {
     .all(...ids) as Question[];
 }
 
+/** Distinct subjects that actually have questions, for the Speed Mode picker. */
+export function subjectsWithCounts(): { exam_body: ExamBody; subject: string; total: number }[] {
+  return db
+    .prepare(
+      `SELECT exam_body, subject, COUNT(*) AS total
+         FROM questions
+        GROUP BY exam_body, subject
+        ORDER BY exam_body, subject`,
+    )
+    .all() as { exam_body: ExamBody; subject: string; total: number }[];
+}
+
+/**
+ * A random set of questions for a timed test. `freeOnly` restricts to the free
+ * (recent) years so a free student's Speed test never leaks premium content.
+ * Randomness is via ORDER BY RANDOM() — fine at this data scale.
+ */
+export function randomQuestions(opts: {
+  body?: ExamBody;
+  subject?: string;
+  count: number;
+  freeYearsBySubject?: Map<string, Set<number>>;
+}): Question[] {
+  const clauses: string[] = [];
+  const params: unknown[] = [];
+  if (opts.body) {
+    clauses.push("exam_body = ?");
+    params.push(opts.body);
+  }
+  if (opts.subject) {
+    clauses.push("subject = ?");
+    params.push(opts.subject);
+  }
+  const where = clauses.length ? `WHERE ${clauses.join(" AND ")}` : "";
+
+  // Pull a generous pool, then apply the free-year filter in JS (the free set
+  // differs per subject), and finally trim to the requested count.
+  const pool = db
+    .prepare(`SELECT * FROM questions ${where} ORDER BY RANDOM() LIMIT ?`)
+    .all(...params, opts.count * 6) as Question[];
+
+  let filtered = pool;
+  if (opts.freeYearsBySubject) {
+    filtered = pool.filter((q) => {
+      const free = opts.freeYearsBySubject!.get(`${q.exam_body}|${q.subject}`);
+      return free ? free.has(q.year) : false;
+    });
+  }
+  return filtered.slice(0, opts.count);
+}
+
 export function libraryStats() {
   const row = db
     .prepare(
@@ -96,19 +160,20 @@ export function libraryStats() {
 
 export function recordAttempt(input: {
   userId: number;
-  body: ExamBody;
+  body: string;
   subject: string;
   year: number;
   total: number;
   score: number;
   seconds: number;
+  mode?: "paper" | "speed";
   answers: { questionId: number; chosen: string | null; correct: boolean }[];
 }): number {
   const save = db.transaction(() => {
     const result = db
       .prepare(
-        `INSERT INTO attempts (user_id, exam_body, subject, year, total, score, seconds_spent)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO attempts (user_id, exam_body, subject, year, total, score, seconds_spent, mode)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .run(
         input.userId,
@@ -118,6 +183,7 @@ export function recordAttempt(input: {
         input.total,
         input.score,
         input.seconds,
+        input.mode ?? "paper",
       );
     const attemptId = Number(result.lastInsertRowid);
     const insert = db.prepare(

@@ -425,24 +425,34 @@ export function knownSubjects(): string[] {
   return rows.map((row) => row.subject);
 }
 
+/**
+ * One row per paper, with the year's recency rank inside its subject so the
+ * caller can mark the newest `freeYears` as free — matching how students are
+ * gated (year-based, not per-question).
+ */
 export function contentBreakdown() {
   return db
     .prepare(
-      `SELECT exam_body, subject, year, COUNT(*) AS total,
-              SUM(CASE WHEN is_premium = 0 THEN 1 ELSE 0 END) AS free,
+      `SELECT p.exam_body, p.subject, p.year, p.total,
+              ROW_NUMBER() OVER (
+                PARTITION BY p.exam_body, p.subject ORDER BY p.year DESC
+              ) AS year_rank,
               (SELECT COUNT(*) FROM attempts a
-                WHERE a.exam_body = q.exam_body AND a.subject = q.subject
-                  AND a.year = q.year) AS attempts
-         FROM questions q
-        GROUP BY exam_body, subject, year
-        ORDER BY attempts DESC, exam_body, subject, year DESC`,
+                WHERE a.exam_body = p.exam_body AND a.subject = p.subject
+                  AND a.year = p.year) AS attempts
+         FROM (
+           SELECT exam_body, subject, year, COUNT(*) AS total
+             FROM questions
+            GROUP BY exam_body, subject, year
+         ) p
+        ORDER BY attempts DESC, p.exam_body, p.subject, p.year DESC`,
     )
     .all() as {
     exam_body: string;
     subject: string;
     year: number;
     total: number;
-    free: number;
+    year_rank: number;
     attempts: number;
   }[];
 }

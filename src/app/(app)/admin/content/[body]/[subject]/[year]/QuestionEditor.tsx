@@ -18,7 +18,6 @@ type Question = {
   answer: "A" | "B" | "C" | "D";
   explanation: string | null;
   topic: string | null;
-  is_premium: number;
 } | null;
 
 function Submit({ label }: { label: string }) {
@@ -36,13 +35,11 @@ export function QuestionEditor({
   subject,
   year,
   question,
-  startEmpty,
 }: {
   body: string;
   subject: string;
   year: number;
   question: Question;
-  startEmpty: boolean;
 }) {
   const [state, action] = useActionState<ContentState, FormData>(saveQuestionAction, {});
 
@@ -56,7 +53,6 @@ export function QuestionEditor({
     answer: question?.answer ?? "A",
     explanation: question?.explanation ?? "",
     topic: question?.topic ?? "",
-    is_premium: (question?.is_premium ?? (startEmpty ? 0 : 1)) === 1,
   });
   const bind = <K extends keyof typeof values>(key: K) => ({
     value: values[key] as string,
@@ -144,32 +140,15 @@ export function QuestionEditor({
         />
       </Field>
 
-      <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
-        <Field label="Topic (optional)">
-          <input
-            name="topic"
-            maxLength={60}
-            placeholder="Standard form"
-            className={inputClass}
-            {...bind("topic")}
-          />
-        </Field>
-
-        <div className="flex items-end">
-          <label className="flex items-center gap-2 rounded-xl bg-ink-900/50 p-3.5 text-sm">
-            <input
-              type="checkbox"
-              name="is_premium"
-              checked={values.is_premium}
-              onChange={(event) =>
-                setValues((previous) => ({ ...previous, is_premium: event.target.checked }))
-              }
-              className="size-4 accent-[#f5b301]"
-            />
-            Premium only
-          </label>
-        </div>
-      </div>
+      <Field label="Topic (optional)">
+        <input
+          name="topic"
+          maxLength={60}
+          placeholder="Standard form"
+          className={inputClass}
+          {...bind("topic")}
+        />
+      </Field>
 
       <div className="flex flex-wrap items-center gap-3 pt-2">
         <Submit label={editing ? "Save changes" : "Add question"} />
