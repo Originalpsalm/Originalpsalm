@@ -2,17 +2,13 @@ import "server-only";
 import crypto from "node:crypto";
 import { db } from "./db";
 import { hashPassword, revokeAllSessions } from "./auth";
+import { escapeHtml, hasEmailService, sendEmail } from "./email";
 
 const TOKEN_TTL_HOURS = 2;
 
-/**
- * Whether an email service is wired up. When it is not, resets fall back to
- * being logged to stdout and offered to the admin panel — the app never
- * blocks a student's reset just because no mail server is configured.
- */
-export function hasEmailService(): boolean {
-  return Boolean(process.env.RESEND_API_KEY);
-}
+// Re-exported so existing importers (the reset action, the admin queue page)
+// keep working after the helper moved into ./email.
+export { hasEmailService };
 
 export type ResetRow = {
   token: string;
@@ -131,43 +127,12 @@ export function pendingResets(): ResetRow[] {
 // ---------------------------------------------------------- email delivery
 
 async function sendResetEmail(input: { to: string; name: string; link: string }): Promise<void> {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return;
-
-  try {
-    await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: process.env.EMAIL_FROM ?? "GURU <onboarding@resend.dev>",
-        to: input.to,
-        subject: "Reset your GURU password",
-        html: `<p>Hi ${escapeHtml(input.name)},</p>
+  await sendEmail({
+    to: input.to,
+    subject: "Reset your GURU password",
+    html: `<p>Hi ${escapeHtml(input.name)},</p>
 <p>Someone (hopefully you) asked to reset your GURU password. This link works for the next ${TOKEN_TTL_HOURS} hours and can only be used once:</p>
 <p><a href="${input.link}">${input.link}</a></p>
 <p>If you did not ask for this, ignore this message — your password stays as it is.</p>`,
-      }),
-    });
-  } catch (error) {
-    // Falls back to admin-queue delivery on the next request, so a student is
-    // not stuck if the email API happens to be down.
-    console.error("[password-reset] Resend failed:", error);
-  }
-}
-
-function escapeHtml(value: string): string {
-  return value.replace(/[&<>"']/g, (character) =>
-    character === "&"
-      ? "&amp;"
-      : character === "<"
-        ? "&lt;"
-        : character === ">"
-          ? "&gt;"
-          : character === '"'
-            ? "&quot;"
-            : "&#39;",
-  );
+  });
 }

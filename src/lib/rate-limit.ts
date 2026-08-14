@@ -65,6 +65,8 @@ export const LIMITS = {
   /** Starting a payment — stops a script spamming Paystack init and filling
       the payments table with pending rows. */
   payment: { max: 12, windowMs: 60 * 60_000 },
+  /** Re-sending a verification email — a few resends per hour is plenty. */
+  verify: { max: 5, windowMs: 60 * 60_000 },
   /** Chat: quick conversation is fine, scripted flooding is not. */
   message: { max: 20, windowMs: 60_000 },
 } as const;

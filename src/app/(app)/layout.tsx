@@ -1,8 +1,10 @@
 import { ShieldAlert } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Logo } from "@/components/Logo";
+import { VerifyBanner } from "@/components/VerifyBanner";
 import { Button } from "@/components/ui";
 import { isAdmin, isPremium, requireUser } from "@/lib/auth";
+import { needsVerification } from "@/lib/verification";
 import { logoutAction } from "@/actions/auth";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -54,6 +56,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         admin: isAdmin(user),
       }}
     >
+      {needsVerification(user) && <VerifyBanner email={user.email} />}
       {children}
     </AppShell>
   );

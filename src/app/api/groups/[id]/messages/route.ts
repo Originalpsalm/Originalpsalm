@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { groupMessages, isMember } from "@/lib/queries";
+import { needsVerification } from "@/lib/verification";
 import { LIMITS, allow } from "@/lib/rate-limit";
 
 type Context = { params: Promise<{ id: string }> };
@@ -28,6 +29,13 @@ export async function GET(request: Request, { params }: Context) {
 export async function POST(request: Request, { params }: Context) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
+
+  if (needsVerification(user)) {
+    return NextResponse.json(
+      { error: "Confirm your email before sending messages." },
+      { status: 403 },
+    );
+  }
 
   const groupId = Number((await params).id);
   if (!Number.isInteger(groupId) || !isMember(groupId, user.id)) {

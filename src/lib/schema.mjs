@@ -16,6 +16,7 @@ export const SCHEMA = `
       state          TEXT,
       avatar_hue     INTEGER NOT NULL DEFAULT 150,
       avatar_version INTEGER NOT NULL DEFAULT 0,        -- >0 once a photo is set; also busts the image cache
+      email_verified INTEGER NOT NULL DEFAULT 0,        -- 1 once the address is confirmed
       plan           TEXT    NOT NULL DEFAULT 'free',   -- 'free' | 'premium'
       plan_expires_at TEXT,                      -- ISO timestamp, null on free
       locked_until   TEXT,                       -- set when sharing is detected
@@ -50,6 +51,16 @@ export const SCHEMA = `
       delivered   INTEGER NOT NULL DEFAULT 0  -- 0 until an email service handles it
     );
     CREATE INDEX IF NOT EXISTS idx_resets_user ON password_resets(user_id);
+
+    -- Email verification tokens. Same shape as password resets: opaque,
+    -- single-use, short-lived. A confirmed token flips users.email_verified.
+    CREATE TABLE IF NOT EXISTS email_verifications (
+      token       TEXT    PRIMARY KEY,
+      user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
+      expires_at  TEXT    NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_verifs_user ON email_verifications(user_id);
 
     -- Small key/value store for owner-configurable settings. The logo lives
     -- here as a blob so it survives deploys (it is on the mounted disk with

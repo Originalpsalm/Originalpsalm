@@ -18,6 +18,11 @@ function open(): Database.Database {
   const database = new Database(file);
   database.pragma("journal_mode = WAL");
   database.pragma("foreign_keys = ON");
+  // Next.js builds and serves from several worker processes that all open this
+  // file at once. Without a busy timeout, two of them creating a column or
+  // running the one-time backfill at the same moment throws "database is
+  // locked"; with it, the second simply waits the few milliseconds needed.
+  database.pragma("busy_timeout = 5000");
   // The schema uses IF NOT EXISTS throughout, so running it on every boot is
   // safe and means a fresh clone works without a separate migration step.
   database.exec(SCHEMA);
@@ -34,6 +39,7 @@ function addMissingColumns(database: Database.Database) {
   const additions: { table: string; column: string; definition: string }[] = [
     { table: "users", column: "role", definition: "TEXT NOT NULL DEFAULT 'student'" },
     { table: "users", column: "avatar_version", definition: "INTEGER NOT NULL DEFAULT 0" },
+    { table: "users", column: "email_verified", definition: "INTEGER NOT NULL DEFAULT 0" },
     { table: "attempts", column: "mode", definition: "TEXT NOT NULL DEFAULT 'paper'" },
   ];
 
@@ -43,6 +49,13 @@ function addMissingColumns(database: Database.Database) {
 
     try {
       database.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+      // One-time backfill runs only when the column is first created:
+      // accounts that already existed are treated as verified, so turning on
+      // email verification never locks out students who are already using the
+      // app. New signups still start unverified.
+      if (table === "users" && column === "email_verified") {
+        database.exec(`UPDATE users SET email_verified = 1`);
+      }
     } catch (error) {
       // Next.js builds and serves from several worker processes at once, so
       // two of them can pass the check above before either one commits. The

@@ -20,6 +20,7 @@ export type User = {
   state: string | null;
   avatar_hue: number;
   avatar_version: number;
+  email_verified: number;
   plan: "free" | "premium";
   plan_expires_at: string | null;
   locked_until: string | null;

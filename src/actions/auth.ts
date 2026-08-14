@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import {
@@ -16,7 +17,16 @@ import {
 import type { User } from "@/lib/types";
 import { LIMITS, allow, callerIp } from "@/lib/rate-limit";
 import { validatePassword } from "@/lib/password-policy";
+import { startEmailVerification } from "@/lib/verification";
 import crypto from "node:crypto";
+
+/** Best-effort base URL for links in emails, from the incoming request. */
+async function currentAppUrl(): Promise<string> {
+  const head = await headers();
+  const proto = head.get("x-forwarded-proto") ?? "https";
+  const host = head.get("host") ?? "localhost:3000";
+  return process.env.NEXT_PUBLIC_APP_URL || `${proto}://${host}`;
+}
 
 // A throwaway hash used to equalise login timing when no account matches —
 // hashing runs whether or not the user exists, so response time reveals
@@ -90,8 +100,18 @@ export async function signupAction(_prev: AuthState, formData: FormData): Promis
       Math.floor(Math.random() * 360),
     );
 
+  const newUserId = Number(result.lastInsertRowid);
+
   // A brand-new account has no other sessions, so this cannot be refused.
-  await startSession(Number(result.lastInsertRowid), { force: true });
+  await startSession(newUserId, { force: true });
+
+  // Send the "confirm your email" link when email is configured. Non-blocking:
+  // a delivery hiccup must never stop a student from getting into the app.
+  await startEmailVerification(
+    { id: newUserId, email: input.email, name: input.name },
+    await currentAppUrl(),
+  );
+
   redirect("/dashboard");
 }
 

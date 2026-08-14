@@ -6,8 +6,11 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { groupByCode, groupById, isMember, makeInviteCode } from "@/lib/queries";
+import { needsVerification } from "@/lib/verification";
 
 export type GroupState = { error?: string; success?: string };
+
+const VERIFY_FIRST = "Please confirm your email first — use the banner at the top of the page.";
 
 const MAX_GROUPS_PER_USER = 12;
 const MAX_MEMBERS = 60;
@@ -22,6 +25,7 @@ const createSchema = z.object({
 
 export async function createGroupAction(_prev: GroupState, formData: FormData): Promise<GroupState> {
   const user = await requireUser();
+  if (needsVerification(user)) return { error: VERIFY_FIRST };
   const parsed = createSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Please check the form." };
@@ -132,6 +136,7 @@ export async function leaveGroupAction(formData: FormData) {
 
 export async function sendMessageAction(_prev: GroupState, formData: FormData): Promise<GroupState> {
   const user = await requireUser();
+  if (needsVerification(user)) return { error: VERIFY_FIRST };
   const groupId = Number(formData.get("groupId"));
   const body = String(formData.get("body") ?? "").trim();
 
