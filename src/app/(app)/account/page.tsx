@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   Crown,
   LogOut,
@@ -206,6 +207,16 @@ export default async function AccountPage() {
           <LogOut size={16} /> Sign out
         </Button>
       </form>
+
+      <p className="pt-2 text-center text-xs text-mist/70">
+        <Link href="/terms" className="focus-ring rounded hover:text-chalk">
+          Terms of Service
+        </Link>{" "}
+        ·{" "}
+        <Link href="/privacy" className="focus-ring rounded hover:text-chalk">
+          Privacy Policy
+        </Link>
+      </p>
     </div>
   );
 }

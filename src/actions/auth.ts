@@ -67,6 +67,11 @@ export async function signupAction(_prev: AuthState, formData: FormData): Promis
     return { error: "Too many accounts created from this connection. Try again later." };
   }
 
+  // Explicit, recorded consent to the Terms and Privacy Policy.
+  if (formData.get("terms") !== "on") {
+    return { error: "Please agree to the Terms of Service and Privacy Policy to continue." };
+  }
+
   const strong = await validatePassword(input.password, [input.name, input.username, input.email]);
   if (!strong.ok) return { error: strong.error };
 
@@ -85,8 +90,8 @@ export async function signupAction(_prev: AuthState, formData: FormData): Promis
   const result = db
     .prepare(
       `INSERT INTO users (name, username, email, phone, password_hash, school,
-                          class_level, state, avatar_hue)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                          class_level, state, avatar_hue, terms_accepted_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
     )
     .run(
       input.name,

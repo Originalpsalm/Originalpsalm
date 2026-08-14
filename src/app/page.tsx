@@ -201,12 +201,18 @@ export default async function LandingPage() {
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
           <Logo size={26} />
           <p>Built for Nigerian students. Study hard, pass well.</p>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-4">
             <Link href="/login" className="focus-ring rounded hover:text-chalk">
               Sign in
             </Link>
             <Link href="/signup" className="focus-ring rounded hover:text-chalk">
               Sign up
+            </Link>
+            <Link href="/terms" className="focus-ring rounded hover:text-chalk">
+              Terms
+            </Link>
+            <Link href="/privacy" className="focus-ring rounded hover:text-chalk">
+              Privacy
             </Link>
           </div>
         </div>

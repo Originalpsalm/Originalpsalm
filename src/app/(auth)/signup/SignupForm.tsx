@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
@@ -30,6 +31,7 @@ const EMPTY = {
 export function SignupForm() {
   const [state, action] = useActionState<AuthState, FormData>(signupAction, {});
   const [showPassword, setShowPassword] = useState(false);
+  const [accepted, setAccepted] = useState(false);
 
   // React clears uncontrolled fields once a form action completes, which would
   // wipe the whole form on a single validation error. Keeping the values in
@@ -138,6 +140,28 @@ export function SignupForm() {
           </select>
         </Field>
       </div>
+
+      <label className="flex items-start gap-2.5 text-xs leading-relaxed text-mist">
+        <input
+          type="checkbox"
+          name="terms"
+          checked={accepted}
+          onChange={(event) => setAccepted(event.target.checked)}
+          required
+          className="mt-0.5 size-4 shrink-0 accent-leaf-500"
+        />
+        <span>
+          I agree to GURU&apos;s{" "}
+          <Link href="/terms" target="_blank" className="font-semibold text-leaf-400 hover:underline">
+            Terms of Service
+          </Link>{" "}
+          and{" "}
+          <Link href="/privacy" target="_blank" className="font-semibold text-leaf-400 hover:underline">
+            Privacy Policy
+          </Link>
+          . If I am under 18, I have my parent or guardian&apos;s consent.
+        </span>
+      </label>
 
       <SubmitButton />
 

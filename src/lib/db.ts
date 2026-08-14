@@ -40,6 +40,7 @@ function addMissingColumns(database: Database.Database) {
     { table: "users", column: "role", definition: "TEXT NOT NULL DEFAULT 'student'" },
     { table: "users", column: "avatar_version", definition: "INTEGER NOT NULL DEFAULT 0" },
     { table: "users", column: "email_verified", definition: "INTEGER NOT NULL DEFAULT 0" },
+    { table: "users", column: "terms_accepted_at", definition: "TEXT" },
     { table: "attempts", column: "mode", definition: "TEXT NOT NULL DEFAULT 'paper'" },
   ];
 

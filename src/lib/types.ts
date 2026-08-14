@@ -21,6 +21,7 @@ export type User = {
   avatar_hue: number;
   avatar_version: number;
   email_verified: number;
+  terms_accepted_at: string | null;
   plan: "free" | "premium";
   plan_expires_at: string | null;
   locked_until: string | null;

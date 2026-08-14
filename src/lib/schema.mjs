@@ -17,6 +17,7 @@ export const SCHEMA = `
       avatar_hue     INTEGER NOT NULL DEFAULT 150,
       avatar_version INTEGER NOT NULL DEFAULT 0,        -- >0 once a photo is set; also busts the image cache
       email_verified INTEGER NOT NULL DEFAULT 0,        -- 1 once the address is confirmed
+      terms_accepted_at TEXT,                           -- when the user agreed to Terms/Privacy
       plan           TEXT    NOT NULL DEFAULT 'free',   -- 'free' | 'premium'
       plan_expires_at TEXT,                      -- ISO timestamp, null on free
       locked_until   TEXT,                       -- set when sharing is detected
