@@ -74,11 +74,27 @@ export function Logo({
     <span className={cn("inline-flex items-center gap-2.5", className)}>
       <LogoMark size={size} />
       {showWord && (
-        <span
-          className="font-extrabold tracking-tight"
-          style={{ fontSize: size * 0.62, letterSpacing: "-0.02em" }}
-        >
-          GURU
+        <span className="inline-flex flex-col items-center leading-none">
+          <span
+            className="font-extrabold tracking-tight"
+            style={{ fontSize: size * 0.62, letterSpacing: "-0.02em" }}
+          >
+            GURU
+          </span>
+          {/* The "point" wordmark — small, green, spaced, sitting under GURU.
+              The left padding offsets the trailing letter-spacing so it stays
+              visually centred. */}
+          <span
+            className="font-semibold text-leaf-400"
+            style={{
+              fontSize: Math.max(8, size * 0.2),
+              letterSpacing: "0.42em",
+              marginTop: size * 0.06,
+              paddingLeft: "0.42em",
+            }}
+          >
+            point
+          </span>
         </span>
       )}
     </span>
