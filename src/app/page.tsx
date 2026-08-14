@@ -39,7 +39,7 @@ export default async function LandingPage() {
       {/* --------------------------------------------------------- hero --- */}
       <section className="animate-rise py-14 text-center sm:py-20">
         <Badge tone="gold" className="mb-6">
-          <Sparkles size={12} /> WAEC · JAMB · NECO
+          <Sparkles size={12} /> WAEC · JAMB · NECO · NABTEB
         </Badge>
 
         <h1 className="mx-auto max-w-3xl text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-6xl">

@@ -24,7 +24,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             Your <span className="text-gradient">exam year</span> just got easier.
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-mist">
-            Ten years of WAEC, JAMB and NECO past questions — each one with the working shown, not
+            Years of WAEC, JAMB, NECO and NABTEB past questions — each one with the working shown, not
             just the answer. Then bring your classmates in and grind together.
           </p>
 

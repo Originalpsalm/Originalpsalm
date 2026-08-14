@@ -115,7 +115,7 @@ export const SCHEMA = `
     -- ========================= PAST QUESTIONS =========================
     CREATE TABLE IF NOT EXISTS questions (
       id           INTEGER PRIMARY KEY AUTOINCREMENT,
-      exam_body    TEXT    NOT NULL,              -- 'WAEC' | 'JAMB' | 'NECO'
+      exam_body    TEXT    NOT NULL,              -- 'WAEC' | 'JAMB' | 'NECO' | 'NABTEB'
       subject      TEXT    NOT NULL,
       year         INTEGER NOT NULL,
       number       INTEGER NOT NULL,              -- position within the paper

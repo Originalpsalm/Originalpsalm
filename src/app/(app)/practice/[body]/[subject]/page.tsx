@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Crown, Lock, Play } from "lucide-react";
+import { ArrowLeft, Clock, Crown, Lock, Play } from "lucide-react";
 import { isPremium, requireUser } from "@/lib/auth";
 import { papersWithAccess } from "@/lib/queries";
 import { freeYears } from "@/lib/content-rules";
+import { isCatalogSubject } from "@/lib/catalog";
 import { EXAM_BODIES, type ExamBody } from "@/lib/types";
-import { Badge, ButtonLink } from "@/components/ui";
+import { Badge, ButtonLink, EmptyState } from "@/components/ui";
 
 type Props = { params: Promise<{ body: string; subject: string }> };
 
@@ -22,7 +23,27 @@ export default async function SubjectPage({ params }: Props) {
   const subjectName = decodeURIComponent(subject);
   const nFree = freeYears();
   const papers = papersWithAccess(examBody.id as ExamBody, subjectName, nFree);
-  if (papers.length === 0) notFound();
+
+  // A subject with no papers yet: if it's an official catalog subject, show a
+  // friendly "coming soon" screen; only a truly unknown subject 404s.
+  if (papers.length === 0) {
+    if (!isCatalogSubject(examBody.id as ExamBody, subjectName)) notFound();
+    return (
+      <div className="space-y-6">
+        <Link
+          href={`/practice/${examBody.id}`}
+          className="focus-ring inline-flex items-center gap-1.5 rounded text-sm text-mist hover:text-chalk"
+        >
+          <ArrowLeft size={15} /> {examBody.name} subjects
+        </Link>
+        <EmptyState
+          icon={<Clock size={24} />}
+          title={`${subjectName} — coming soon`}
+          body={`${examBody.name} ${subjectName} questions are being added. Check back shortly — this subject will open the moment its first paper is uploaded.`}
+        />
+      </div>
+    );
+  }
 
   const user = await requireUser();
   const premium = isPremium(user);

@@ -1,13 +1,16 @@
 import Link from "next/link";
 import { ArrowRight, BookOpenCheck, Timer, Zap } from "lucide-react";
-import { subjectsFor } from "@/lib/queries";
+import { subjectsWithCatalog } from "@/lib/queries";
 import { EXAM_BODIES } from "@/lib/types";
 import { Badge } from "@/components/ui";
 
 export const metadata = { title: "Practice" };
 
 export default function PracticePage() {
-  const bodies = EXAM_BODIES.map((body) => ({ ...body, subjects: subjectsFor(body.id) }));
+  const bodies = EXAM_BODIES.map((body) => {
+    const all = subjectsWithCatalog(body.id);
+    return { ...body, subjects: all.filter((s) => !s.comingSoon), catalogCount: all.length };
+  });
 
   return (
     <div className="space-y-8">
@@ -47,7 +50,7 @@ export default function PracticePage() {
         <section key={body.id}>
           <div className="mb-3 flex items-center gap-3">
             <h2 className="text-xl font-bold text-leaf-400">{body.name}</h2>
-            <Badge tone="mist">{body.subjects.length} subjects</Badge>
+            <Badge tone="mist">{body.catalogCount} subjects</Badge>
             <Link
               href={`/practice/${body.id}`}
               className="focus-ring ml-auto rounded text-sm text-mist hover:text-chalk"
@@ -57,9 +60,17 @@ export default function PracticePage() {
           </div>
 
           {body.subjects.length === 0 ? (
-            <p className="surface px-4 py-6 text-sm text-mist">
-              No papers loaded for {body.name} yet.
-            </p>
+            <Link
+              href={`/practice/${body.id}`}
+              className="focus-ring surface flex items-center gap-3 px-4 py-6 text-sm text-mist transition hover:text-chalk"
+            >
+              <BookOpenCheck size={18} className="shrink-0 text-mist" />
+              <span>
+                {body.catalogCount} {body.name} subjects listed — questions are being added. Tap to
+                see the full list.
+              </span>
+              <ArrowRight size={16} className="ml-auto shrink-0" />
+            </Link>
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {body.subjects.map((subject) => (

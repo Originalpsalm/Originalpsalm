@@ -8,7 +8,7 @@ import { db } from "@/lib/db";
 import { nextQuestionNumber, recordAction } from "@/lib/admin";
 import type { ExamBody } from "@/lib/types";
 
-const bodies = ["WAEC", "JAMB", "NECO"] as const;
+const bodies = ["WAEC", "JAMB", "NECO", "NABTEB"] as const;
 
 const questionSchema = z.object({
   exam_body: z.enum(bodies),

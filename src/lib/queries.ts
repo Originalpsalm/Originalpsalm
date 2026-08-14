@@ -1,6 +1,7 @@
 import "server-only";
 import crypto from "node:crypto";
 import { db } from "./db";
+import { catalogSubjects } from "./catalog";
 import type {
   Attempt,
   ExamBody,
@@ -46,6 +47,43 @@ export function subjectsFor(body: ExamBody): { subject: string; papers: number; 
         ORDER BY subject`,
     )
     .all(body) as { subject: string; papers: number; total: number }[];
+}
+
+export type CatalogSubject = {
+  subject: string;
+  papers: number;
+  total: number;
+  comingSoon: boolean; // true when no questions have been uploaded yet
+};
+
+/**
+ * The full official subject list for a body, each annotated with how many
+ * papers/questions it actually has. Subjects with nothing uploaded come back
+ * with `comingSoon: true`. Any subject that exists in the database but is not
+ * in the catalog (e.g. a custom upload) is appended so nothing is ever hidden.
+ */
+export function subjectsWithCatalog(body: ExamBody): CatalogSubject[] {
+  const counts = new Map(subjectsFor(body).map((s) => [s.subject, s]));
+
+  const merged: CatalogSubject[] = catalogSubjects(body).map((subject) => {
+    const hit = counts.get(subject);
+    return {
+      subject,
+      papers: hit?.papers ?? 0,
+      total: hit?.total ?? 0,
+      comingSoon: !hit || hit.total === 0,
+    };
+  });
+
+  // Custom subjects that were uploaded but aren't in the official catalog.
+  const catalogNames = new Set(catalogSubjects(body).map((s) => s.toLowerCase()));
+  for (const [subject, hit] of counts) {
+    if (!catalogNames.has(subject.toLowerCase())) {
+      merged.push({ subject, papers: hit.papers, total: hit.total, comingSoon: hit.total === 0 });
+    }
+  }
+
+  return merged.sort((a, b) => a.subject.localeCompare(b.subject));
 }
 
 export function papersFor(body: ExamBody, subject: string): PaperSummary[] {

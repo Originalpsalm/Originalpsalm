@@ -10,7 +10,7 @@ Output ONLY a CSV (no commentary, no code fences) with EXACTLY these column head
 exam_body,subject,year,question,option_a,option_b,option_c,option_d,answer,explanation,topic
 
 Rules:
-- exam_body must be one of: WAEC, JAMB, NECO
+- exam_body must be one of: WAEC, JAMB, NECO, NABTEB
 - answer must be a single letter: A, B, C or D (the correct option)
 - explanation: show the working/reasoning, not just the answer
 - topic: a short topic label (e.g. "Fractions", "Photosynthesis")

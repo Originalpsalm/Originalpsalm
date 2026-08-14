@@ -1,5 +1,6 @@
 import "server-only";
 import { db } from "./db";
+import { allCatalogSubjects } from "./catalog";
 import type { Role, User } from "./types";
 
 // ================================================================= overview
@@ -425,7 +426,10 @@ export function knownSubjects(): string[] {
   const rows = db
     .prepare(`SELECT DISTINCT subject FROM questions ORDER BY subject`)
     .all() as { subject: string }[];
-  return rows.map((row) => row.subject);
+  // Offer every official subject as a suggestion, plus anything already
+  // uploaded, so admins spell subjects consistently with the student catalog.
+  const merged = new Set<string>([...allCatalogSubjects(), ...rows.map((r) => r.subject)]);
+  return [...merged].sort((a, b) => a.localeCompare(b));
 }
 
 /**

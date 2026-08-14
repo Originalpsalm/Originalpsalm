@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     template: "%s · GURU",
   },
   description:
-    "Past questions for WAEC, JAMB and NECO with worked answers, study groups with your classmates, and progress tracking. Built for Nigerian students.",
+    "Past questions for WAEC, JAMB, NECO and NABTEB with worked answers, study groups with your classmates, and progress tracking. Built for Nigerian students.",
   applicationName: "GURU",
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, title: "GURU", statusBarStyle: "black-translucent" },

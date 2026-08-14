@@ -23,7 +23,7 @@ const FIELDS = [
 
 type Field = (typeof FIELDS)[number];
 
-const BODIES = new Set(["WAEC", "JAMB", "NECO"]);
+const BODIES = new Set(["WAEC", "JAMB", "NECO", "NABTEB"]);
 const LETTERS = new Set(["A", "B", "C", "D"]);
 
 export type ImportRow = {
@@ -151,7 +151,7 @@ async function validate(text: string): Promise<Parsed> {
     };
 
     if (!BODIES.has(exam)) {
-      problems.push({ line, reason: `Exam "${get("exam_body")}" must be WAEC, JAMB or NECO.` });
+      problems.push({ line, reason: `Exam "${get("exam_body")}" must be WAEC, JAMB, NECO or NABTEB.` });
       continue;
     }
     if (!subject) {

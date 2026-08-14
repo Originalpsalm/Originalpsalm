@@ -1,4 +1,4 @@
-export type ExamBody = "WAEC" | "JAMB" | "NECO";
+export type ExamBody = "WAEC" | "JAMB" | "NECO" | "NABTEB";
 
 /**
  * 'owner' is you — the founder. There is meant to be exactly one, and only an
@@ -133,6 +133,12 @@ export const EXAM_BODIES: {
     name: "NECO",
     full: "National Examinations Council",
     blurb: "SSCE internal and external past papers.",
+  },
+  {
+    id: "NABTEB",
+    name: "NABTEB",
+    full: "National Business and Technical Examinations Board",
+    blurb: "NBC/NTC past questions across business, technical and trade subjects.",
   },
 ];
 
