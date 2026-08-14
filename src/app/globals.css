@@ -25,6 +25,10 @@
   --color-chalk: #eaf5ef;
   --color-mist: #93ab9f;
 
+  /* Text that always sits on a green/gold fill — stays dark in both themes,
+     so it never flips with the background tokens above. */
+  --color-brandink: #04170f;
+
   --font-sans: var(--font-app), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 
   --radius-xl2: 1.25rem;
@@ -33,6 +37,40 @@
 :root {
   color-scheme: dark;
   --font-app: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  /* Body glow tints — softened in light mode below. */
+  --glow-leaf: rgba(23, 196, 113, 0.13);
+  --glow-gold: rgba(245, 179, 1, 0.08);
+}
+
+/* ---------------------------------------------------------------------------
+   Light mode. The green identity is kept; only the neutrals flip. The dark
+   values above are the default, so light just overrides the tokens — every
+   `bg-ink-*` / `text-chalk` / `text-mist` utility follows automatically.
+--------------------------------------------------------------------------- */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --color-ink-950: #eef4ef; /* page background */
+  --color-ink-900: #ffffff; /* cards / raised surfaces */
+  --color-ink-850: #f5f9f5;
+  --color-ink-800: #eef3ee;
+  --color-ink-700: #dbe6dd; /* borders / muted fills */
+  --color-ink-600: #c6d6c9;
+
+  /* Accent green darkened so it stays legible on light surfaces. */
+  --color-leaf-400: #0f9d58;
+  --color-leaf-500: #0e8f50;
+  --color-leaf-600: #0b7a44;
+  --color-leaf-700: #095f36;
+
+  --color-gold-400: #a9760a;
+  --color-gold-500: #946200;
+
+  --color-chalk: #0c1c14; /* main text */
+  --color-mist: #52685c; /* muted text */
+
+  --glow-leaf: rgba(23, 196, 113, 0.1);
+  --glow-gold: rgba(245, 179, 1, 0.07);
 }
 
 * {
@@ -41,8 +79,8 @@
 
 body {
   background:
-    radial-gradient(1200px 600px at 15% -10%, rgba(23, 196, 113, 0.13), transparent 60%),
-    radial-gradient(900px 500px at 95% 0%, rgba(245, 179, 1, 0.08), transparent 55%),
+    radial-gradient(1200px 600px at 15% -10%, var(--glow-leaf), transparent 60%),
+    radial-gradient(900px 500px at 95% 0%, var(--glow-gold), transparent 55%),
     var(--color-ink-950);
   color: var(--color-chalk);
   min-height: 100dvh;

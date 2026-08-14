@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Crown, Loader2, Play } from "lucide-react";
 import { startSpeedTestAction } from "@/actions/speed";
-import { SPEED_OPTIONS } from "@/lib/content-constants";
+import type { SpeedTier } from "@/lib/content-constants";
 import { Button, cn, inputClass } from "@/components/ui";
 import type { ExamBody } from "@/lib/types";
 
@@ -28,16 +28,18 @@ function StartButton({ locked }: { locked: boolean }) {
 export function SpeedPicker({
   subjects,
   premium,
+  tiers,
 }: {
   subjects: { exam_body: ExamBody; subject: string; total: number }[];
   premium: boolean;
+  tiers: SpeedTier[];
 }) {
-  const [count, setCount] = useState(10);
+  const [count, setCount] = useState(tiers[0]?.count ?? 10);
   const [scope, setScope] = useState(""); // "" = mixed, else "BODY|Subject"
 
   const [body, subject] = scope ? scope.split("|") : ["", ""];
-  const option = SPEED_OPTIONS.find((o) => o.count === count) ?? SPEED_OPTIONS[0];
-  const locked = option.premium && !premium;
+  const tier = tiers.find((t) => t.count === count) ?? tiers[0];
+  const locked = !!tier?.premium && !premium;
 
   return (
     <form action={startSpeedTestAction} className="card space-y-5 p-6">
@@ -47,24 +49,27 @@ export function SpeedPicker({
 
       <div>
         <p className="mb-2 text-sm font-medium text-mist">How many questions?</p>
-        <div className="grid grid-cols-3 gap-2">
-          {SPEED_OPTIONS.map((o) => {
-            const isLocked = o.premium && !premium;
+        <div
+          className="grid gap-2"
+          style={{ gridTemplateColumns: `repeat(${Math.min(tiers.length, 4)}, minmax(0, 1fr))` }}
+        >
+          {tiers.map((t) => {
+            const isLocked = t.premium && !premium;
             return (
               <button
-                key={o.count}
+                key={t.count}
                 type="button"
-                onClick={() => setCount(o.count)}
-                aria-pressed={count === o.count}
+                onClick={() => setCount(t.count)}
+                aria-pressed={count === t.count}
                 className={cn(
                   "focus-ring rounded-xl border p-3 text-center transition",
-                  count === o.count
+                  count === t.count
                     ? "border-leaf-500/60 bg-leaf-500/12"
                     : "border-leaf-500/15 bg-ink-900/40 hover:border-leaf-500/35",
                 )}
               >
-                <span className="block text-lg font-extrabold tabular-nums">{o.count}</span>
-                <span className="block text-[11px] text-mist">{o.label}</span>
+                <span className="block text-lg font-extrabold tabular-nums">{t.count}</span>
+                <span className="block text-[11px] text-mist">{t.minutes} min</span>
                 {isLocked && (
                   <span className="mt-1 inline-flex items-center gap-0.5 text-[10px] font-semibold text-gold-400">
                     <Crown size={9} /> Premium
@@ -98,7 +103,8 @@ export function SpeedPicker({
 
       {locked && (
         <p className="text-center text-xs text-mist">
-          The 10-question quick test is free. Longer mocks are part of Premium.
+          This length is part of Premium. Pick a free length above, or subscribe to unlock the
+          longer mocks.
         </p>
       )}
     </form>

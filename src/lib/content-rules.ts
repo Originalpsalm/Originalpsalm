@@ -1,15 +1,20 @@
 import "server-only";
 import { db } from "./db";
-import { getNumberSetting } from "./settings";
-import { DEFAULT_FREE_YEARS } from "./content-constants";
+import { getNumberSetting, getSetting } from "./settings";
+import { DEFAULT_FREE_YEARS, normaliseTiers, type SpeedTier } from "./content-constants";
 
 // Re-export the pure constants so server code can import everything from here.
-export {
-  DEFAULT_FREE_YEARS,
-  SPEED_SECONDS_PER_QUESTION,
-  SPEED_OPTIONS,
-  speedOption,
-} from "./content-constants";
+export { DEFAULT_FREE_YEARS } from "./content-constants";
+export type { SpeedTier } from "./content-constants";
+
+/** The admin-configured timed-test tiers (counts, minutes, free/premium). */
+export function speedTiers(): SpeedTier[] {
+  try {
+    return normaliseTiers(JSON.parse(getSetting("speed_tiers", "")));
+  } catch {
+    return normaliseTiers(null);
+  }
+}
 
 /**
  * The free/premium model, in one place so it "stands the test of time":

@@ -33,6 +33,7 @@ function open(): Database.Database {
 function addMissingColumns(database: Database.Database) {
   const additions: { table: string; column: string; definition: string }[] = [
     { table: "users", column: "role", definition: "TEXT NOT NULL DEFAULT 'student'" },
+    { table: "users", column: "avatar_version", definition: "INTEGER NOT NULL DEFAULT 0" },
     { table: "attempts", column: "mode", definition: "TEXT NOT NULL DEFAULT 'paper'" },
   ];
 

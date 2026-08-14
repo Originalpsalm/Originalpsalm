@@ -58,7 +58,7 @@ export default async function AdminUserPage({ params, searchParams }: Props) {
 
       {/* --------------------------------------------------------- identity */}
       <header className="card flex flex-wrap items-center gap-4 p-5">
-        <Avatar name={user.name} hue={user.avatar_hue} size={56} />
+        <Avatar name={user.name} hue={user.avatar_hue} userId={user.id} avatarVersion={user.avatar_version} size={56} />
         <div className="min-w-0 flex-1">
           <h2 className="truncate text-xl font-extrabold tracking-tight">{user.name}</h2>
           <p className="truncate text-sm text-mist">

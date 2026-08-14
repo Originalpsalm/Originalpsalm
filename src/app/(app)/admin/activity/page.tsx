@@ -37,7 +37,7 @@ export default function AdminActivityPage() {
             const phrase = PHRASING[entry.action] ?? { text: entry.action, tone: "mist" as const };
             return (
               <li key={entry.id} className="card flex flex-wrap items-start gap-3 p-4">
-                <Avatar name={entry.actor_name} hue={entry.avatar_hue} size={32} />
+                <Avatar name={entry.actor_name} hue={entry.avatar_hue} userId={entry.actor_id} avatarVersion={entry.avatar_version} size={32} />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm">
                     <span className="font-semibold">{entry.actor_name}</span>{" "}

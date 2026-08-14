@@ -19,6 +19,7 @@ export type User = {
   class_level: string | null;
   state: string | null;
   avatar_hue: number;
+  avatar_version: number;
   plan: "free" | "premium";
   plan_expires_at: string | null;
   locked_until: string | null;
@@ -35,6 +36,7 @@ export type PublicUser = {
   school: string | null;
   class_level: string | null;
   avatar_hue: number;
+  avatar_version: number;
 };
 
 export type Question = {
@@ -97,6 +99,7 @@ export type Message = {
   author_name: string;
   author_username: string;
   avatar_hue: number;
+  avatar_version: number;
 };
 
 export type Friendship = {

@@ -90,7 +90,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                   href={`/admin/users/${row.id}`}
                   className="focus-ring card flex flex-wrap items-center gap-3 p-4 transition hover:border-leaf-500/35"
                 >
-                  <Avatar name={row.name} hue={row.avatar_hue} size={40} />
+                  <Avatar name={row.name} hue={row.avatar_hue} userId={row.id} avatarVersion={row.avatar_version} size={40} />
                   <div className="min-w-0 flex-1">
                     <p className="flex flex-wrap items-center gap-2 font-semibold">
                       <span className="truncate">{row.name}</span>

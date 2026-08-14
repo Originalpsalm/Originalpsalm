@@ -23,7 +23,7 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
         </p>
         <Link
           href="/forgot-password"
-          className="focus-ring mt-6 inline-flex rounded-full brand-gradient px-5 py-2.5 text-sm font-semibold text-ink-950"
+          className="focus-ring mt-6 inline-flex rounded-full brand-gradient px-5 py-2.5 text-sm font-semibold text-brandink"
         >
           Send me a new link
         </Link>

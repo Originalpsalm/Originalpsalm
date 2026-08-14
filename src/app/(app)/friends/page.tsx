@@ -190,7 +190,7 @@ export default async function FriendsPage({ searchParams }: Props) {
 function PersonSummary({ person }: { person: PublicUser | FriendRow }) {
   return (
     <>
-      <Avatar name={person.name} hue={person.avatar_hue} size={42} />
+      <Avatar name={person.name} hue={person.avatar_hue} userId={person.id} avatarVersion={person.avatar_version} size={42} />
       <div className="min-w-0 flex-1">
         <p className="truncate font-semibold">{person.name}</p>
         <p className="truncate text-xs text-mist">

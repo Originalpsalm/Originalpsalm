@@ -15,6 +15,7 @@ export const SCHEMA = `
       class_level    TEXT,                       -- e.g. 'SS3'
       state          TEXT,
       avatar_hue     INTEGER NOT NULL DEFAULT 150,
+      avatar_version INTEGER NOT NULL DEFAULT 0,        -- >0 once a photo is set; also busts the image cache
       plan           TEXT    NOT NULL DEFAULT 'free',   -- 'free' | 'premium'
       plan_expires_at TEXT,                      -- ISO timestamp, null on free
       locked_until   TEXT,                       -- set when sharing is detected
@@ -59,6 +60,16 @@ export const SCHEMA = `
       blob        BLOB,
       mime        TEXT,
       updated_at  TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    -- Uploaded profile pictures. One row per user, stored as a blob on the same
+    -- mounted disk as everything else, so photos survive deploys with no
+    -- separate file/image hosting. Kept out of the users row to keep that light.
+    CREATE TABLE IF NOT EXISTS user_avatars (
+      user_id     INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+      blob        BLOB    NOT NULL,
+      mime        TEXT    NOT NULL,
+      updated_at  TEXT    NOT NULL DEFAULT (datetime('now'))
     );
 
     -- A Speed Mode test: the chosen questions (as a JSON id array) and its time

@@ -55,7 +55,7 @@ export async function POST(request: Request, { params }: Context) {
 
   const message = db
     .prepare(
-      `SELECT m.*, u.name AS author_name, u.username AS author_username, u.avatar_hue
+      `SELECT m.*, u.name AS author_name, u.username AS author_username, u.avatar_hue, u.avatar_version
          FROM messages m JOIN users u ON u.id = m.user_id
         WHERE m.id = ?`,
     )

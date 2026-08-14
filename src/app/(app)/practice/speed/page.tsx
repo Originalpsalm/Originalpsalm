@@ -1,7 +1,7 @@
 import { Crown, Timer, Zap } from "lucide-react";
 import { isPremium, requireUser } from "@/lib/auth";
 import { subjectsWithCounts } from "@/lib/queries";
-import { SPEED_OPTIONS } from "@/lib/content-rules";
+import { speedTiers } from "@/lib/content-rules";
 import { Badge } from "@/components/ui";
 import { SpeedPicker } from "./SpeedPicker";
 
@@ -14,6 +14,7 @@ export default async function SpeedModePage({ searchParams }: Props) {
   const user = await requireUser();
   const premium = isPremium(user);
   const subjects = subjectsWithCounts();
+  const tiers = speedTiers();
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -23,8 +24,8 @@ export default async function SpeedModePage({ searchParams }: Props) {
         </Badge>
         <h1 className="mt-3 text-3xl font-extrabold tracking-tight">Beat the clock</h1>
         <p className="mt-2 text-mist">
-          A random mix of questions under real exam timing — one minute each, just like CBT. Pick a
-          length and a subject, then go. It builds your speed and shows where you slow down.
+          A random mix of questions under real exam timing. Pick a length and a subject, then go. It
+          builds your speed and shows where you slow down.
         </p>
       </header>
 
@@ -35,15 +36,15 @@ export default async function SpeedModePage({ searchParams }: Props) {
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-3">
-        {SPEED_OPTIONS.map((option) => (
-          <div key={option.count} className="card p-4 text-center">
-            <p className="text-3xl font-extrabold tabular-nums">{option.count}</p>
+      <div className="grid gap-3 sm:grid-cols-3">
+        {tiers.map((tier) => (
+          <div key={tier.count} className="card p-4 text-center">
+            <p className="text-3xl font-extrabold tabular-nums">{tier.count}</p>
             <p className="text-xs text-mist">questions</p>
             <p className="mt-2 flex items-center justify-center gap-1 text-xs text-mist">
-              <Timer size={12} /> {option.count} min
+              <Timer size={12} /> {tier.minutes} min
             </p>
-            {option.premium && !premium && (
+            {tier.premium && !premium && (
               <Badge tone="gold" className="mt-2">
                 <Crown size={10} /> Premium
               </Badge>
@@ -52,7 +53,7 @@ export default async function SpeedModePage({ searchParams }: Props) {
         ))}
       </div>
 
-      <SpeedPicker subjects={subjects} premium={premium} />
+      <SpeedPicker subjects={subjects} premium={premium} tiers={tiers} />
     </div>
   );
 }

@@ -104,7 +104,7 @@ export function GroupChat({
             >
               <span className={cn("w-8 shrink-0", grouped && "opacity-0")}>
                 {!grouped && (
-                  <Avatar name={message.author_name} hue={message.avatar_hue} size={32} />
+                  <Avatar name={message.author_name} hue={message.avatar_hue} userId={message.user_id} avatarVersion={message.avatar_version} size={32} />
                 )}
               </span>
 
@@ -159,7 +159,7 @@ export function GroupChat({
             type="submit"
             disabled={sending || !draft.trim()}
             aria-label="Send message"
-            className="focus-ring grid size-11 shrink-0 place-items-center rounded-xl brand-gradient text-ink-950 transition disabled:opacity-40"
+            className="focus-ring grid size-11 shrink-0 place-items-center rounded-xl brand-gradient text-brandink transition disabled:opacity-40"
           >
             {sending ? (
               <Loader2 size={18} className="animate-spin" />

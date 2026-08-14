@@ -8,19 +8,26 @@ export function cn(...parts: (string | false | null | undefined)[]): string {
 // ------------------------------------------------------------------- avatar
 
 /**
- * Initials on a colour derived from the user's stored hue. Nobody has to
- * upload a photo (data is expensive) and every classmate still looks distinct.
+ * Initials on a colour derived from the user's stored hue — so every classmate
+ * looks distinct even without a photo. When the user has uploaded a profile
+ * picture (`userId` + `avatarVersion > 0`), it is layered on top; if that image
+ * ever fails to load, the initials underneath simply show through, so no
+ * JavaScript or error handling is needed for the fallback.
  */
 export function Avatar({
   name,
   hue,
   size = 40,
   className,
+  userId,
+  avatarVersion = 0,
 }: {
   name: string;
   hue: number;
   size?: number;
   className?: string;
+  userId?: number;
+  avatarVersion?: number;
 }) {
   const initials = name
     .split(" ")
@@ -29,10 +36,12 @@ export function Avatar({
     .map((part) => part[0]?.toUpperCase())
     .join("");
 
+  const hasPhoto = userId != null && avatarVersion > 0;
+
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-full font-semibold text-ink-950 select-none",
+        "relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full font-semibold text-brandink select-none",
         className,
       )}
       style={{
@@ -44,6 +53,15 @@ export function Avatar({
       aria-hidden="true"
     >
       {initials || "?"}
+      {hasPhoto && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={`/api/avatar/${userId}?v=${avatarVersion}`}
+          alt=""
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      )}
     </span>
   );
 }
@@ -55,9 +73,9 @@ const buttonBase =
   "focus-ring disabled:cursor-not-allowed disabled:opacity-55 active:scale-[0.98]";
 
 const variants = {
-  primary: "brand-gradient text-ink-950 shadow-lg shadow-leaf-700/25 hover:brightness-110",
+  primary: "brand-gradient text-brandink shadow-lg shadow-leaf-700/25 hover:brightness-110",
   ghost: "border border-leaf-500/20 text-chalk hover:border-leaf-500/45 hover:bg-leaf-500/10",
-  gold: "bg-gold-500 text-ink-950 hover:bg-gold-400 shadow-lg shadow-gold-500/20",
+  gold: "bg-gold-500 text-brandink hover:bg-gold-400 shadow-lg shadow-gold-500/20",
   danger: "border border-red-500/30 text-red-300 hover:bg-red-500/10",
   subtle: "text-mist hover:text-chalk",
 } as const;

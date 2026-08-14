@@ -22,7 +22,7 @@ export default function AdminModerationPage() {
         <ul className="space-y-2">
           {messages.map((message) => (
             <li key={message.id} className="card flex flex-wrap items-start gap-3 p-4">
-              <Avatar name={message.author_name} hue={message.avatar_hue} size={36} />
+              <Avatar name={message.author_name} hue={message.avatar_hue} userId={message.author_id} avatarVersion={message.avatar_version} size={36} />
 
               <div className="min-w-0 flex-1">
                 <p className="flex flex-wrap items-center gap-2 text-xs text-mist">

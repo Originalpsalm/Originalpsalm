@@ -75,7 +75,7 @@ export function ImportPanel() {
         <div className="mt-4 flex flex-wrap justify-center gap-3">
           <a
             href="/admin/content"
-            className="focus-ring inline-block rounded-full brand-gradient px-5 py-2 text-sm font-semibold text-ink-950"
+            className="focus-ring inline-block rounded-full brand-gradient px-5 py-2 text-sm font-semibold text-brandink"
           >
             View content
           </a>

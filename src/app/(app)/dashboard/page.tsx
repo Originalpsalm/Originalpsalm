@@ -95,6 +95,8 @@ export default async function DashboardPage() {
                 key={request.id}
                 name={request.name}
                 hue={request.avatar_hue}
+                userId={request.id}
+                avatarVersion={request.avatar_version}
                 size={34}
                 className="ring-2 ring-ink-900"
               />

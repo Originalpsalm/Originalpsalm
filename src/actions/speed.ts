@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import { isPremium, requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { randomQuestions } from "@/lib/queries";
-import { SPEED_OPTIONS, allFreeYearSets, speedOption } from "@/lib/content-rules";
+import { allFreeYearSets, speedTiers } from "@/lib/content-rules";
+import { findTier } from "@/lib/content-constants";
 import type { ExamBody } from "@/lib/types";
 
 /**
@@ -18,22 +19,23 @@ export async function startSpeedTestAction(formData: FormData) {
   const premium = isPremium(user);
 
   const count = Number(formData.get("count") ?? 10);
-  const option = speedOption(count);
+  const tier = findTier(speedTiers(), count);
   const body = (String(formData.get("body") ?? "") || undefined) as ExamBody | undefined;
   const subject = String(formData.get("subject") ?? "") || undefined;
 
-  // Longer mocks are Premium; a free student is bounced to the paywall.
-  if (option.premium && !premium) redirect("/premium");
-  if (!SPEED_OPTIONS.some((o) => o.count === option.count)) redirect("/practice/speed");
+  // An unknown count, or a premium tier for a free student, is refused here —
+  // the server is the authority, not the picker UI.
+  if (!tier) redirect("/practice/speed");
+  if (tier.premium && !premium) redirect("/premium");
 
   const questions = randomQuestions({
     body,
     subject,
-    count: option.count,
+    count: tier.count,
     freeYearsBySubject: premium ? undefined : allFreeYearSets(),
   });
 
-  if (questions.length < Math.min(5, option.count)) {
+  if (questions.length < Math.min(5, tier.count)) {
     // Not enough content for this selection yet.
     redirect("/practice/speed?tooFew=1");
   }
@@ -47,7 +49,7 @@ export async function startSpeedTestAction(formData: FormData) {
     .run(
       user.id,
       JSON.stringify(ids),
-      option.count * 60,
+      tier.minutes * 60,
       body ?? null,
       subject ?? null,
     );

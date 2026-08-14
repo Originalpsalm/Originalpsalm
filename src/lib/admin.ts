@@ -105,6 +105,7 @@ export type AdminUserRow = {
   locked_until: string | null;
   role: Role;
   avatar_hue: number;
+  avatar_version: number;
   created_at: string;
   attempts: number;
   active_sessions: number;
@@ -146,7 +147,7 @@ export function listUsers(options: {
   const rows = db
     .prepare(
       `SELECT u.id, u.name, u.username, u.email, u.school, u.class_level, u.plan,
-              u.plan_expires_at, u.locked_until, u.role, u.avatar_hue, u.created_at,
+              u.plan_expires_at, u.locked_until, u.role, u.avatar_hue, u.avatar_version, u.created_at,
               (SELECT COUNT(*) FROM attempts a WHERE a.user_id = u.id) AS attempts,
               (SELECT COUNT(*) FROM sessions s
                 WHERE s.user_id = u.id AND s.revoked_at IS NULL) AS active_sessions
@@ -271,7 +272,7 @@ export function recentMessages(limit = 60) {
       `SELECT m.id, m.body, m.created_at, m.group_id,
               g.name AS group_name,
               u.id AS author_id, u.name AS author_name, u.username AS author_username,
-              u.avatar_hue
+              u.avatar_hue, u.avatar_version
          FROM messages m
          JOIN groups g ON g.id = m.group_id
          JOIN users u ON u.id = m.user_id
@@ -288,6 +289,7 @@ export function recentMessages(limit = 60) {
     author_name: string;
     author_username: string;
     avatar_hue: number;
+    avatar_version: number;
   }[];
 }
 
@@ -347,7 +349,7 @@ export function recordAction(input: {
 export function listActions(limit = 100) {
   return db
     .prepare(
-      `SELECT a.*, u.name AS actor_name, u.username AS actor_username, u.avatar_hue
+      `SELECT a.*, u.name AS actor_name, u.username AS actor_username, u.avatar_hue, u.avatar_version
          FROM admin_actions a
          JOIN users u ON u.id = a.actor_id
         ORDER BY a.id DESC
@@ -365,6 +367,7 @@ export function listActions(limit = 100) {
     actor_name: string;
     actor_username: string;
     avatar_hue: number;
+    avatar_version: number;
   }[];
 }
 

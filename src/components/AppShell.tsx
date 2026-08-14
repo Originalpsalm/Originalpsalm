@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Avatar, Badge, cn } from "./ui";
 import { Logo } from "./Logo";
+import { ThemeToggle } from "./ThemeToggle";
 
 const NAV = [
   { href: "/dashboard", label: "Home", icon: Home },
@@ -22,9 +23,11 @@ const NAV = [
 ];
 
 export type ShellUser = {
+  id: number;
   name: string;
   username: string;
   avatar_hue: number;
+  avatar_version: number;
   premium: boolean;
   admin: boolean;
 };
@@ -84,16 +87,19 @@ export function AppShell({
           )}
         </nav>
 
-        <Link
-          href="/account"
-          className="focus-ring surface mt-auto flex items-center gap-3 p-3 transition hover:border-leaf-500/30"
-        >
-          <Avatar name={user.name} hue={user.avatar_hue} size={38} />
-          <span className="min-w-0">
-            <span className="block truncate text-sm font-semibold">{user.name}</span>
-            <span className="block truncate text-xs text-mist">@{user.username}</span>
-          </span>
-        </Link>
+        <div className="mt-auto flex items-center gap-2">
+          <Link
+            href="/account"
+            className="focus-ring surface flex min-w-0 flex-1 items-center gap-3 p-3 transition hover:border-leaf-500/30"
+          >
+            <Avatar name={user.name} hue={user.avatar_hue} userId={user.id} avatarVersion={user.avatar_version} size={38} />
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-semibold">{user.name}</span>
+              <span className="block truncate text-xs text-mist">@{user.username}</span>
+            </span>
+          </Link>
+          <ThemeToggle />
+        </div>
       </aside>
 
       {/* -------------------------------------------------------- content --- */}
@@ -103,7 +109,7 @@ export function AppShell({
           <Link href="/dashboard" className="focus-ring rounded-xl">
             <Logo size={30} />
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             {user.premium ? (
               <Badge tone="gold">
                 <Crown size={12} /> Premium
@@ -120,8 +126,9 @@ export function AppShell({
                 </Badge>
               </Link>
             )}
+            <ThemeToggle className="size-8" />
             <Link href="/account" className="focus-ring rounded-full">
-              <Avatar name={user.name} hue={user.avatar_hue} size={34} />
+              <Avatar name={user.name} hue={user.avatar_hue} userId={user.id} avatarVersion={user.avatar_version} size={34} />
             </Link>
           </div>
         </header>

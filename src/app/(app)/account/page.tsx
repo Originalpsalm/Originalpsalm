@@ -19,6 +19,7 @@ import { userStats } from "@/lib/queries";
 import { Avatar, Badge, Button, ButtonLink, naira } from "@/components/ui";
 import { PREMIUM_PRICE_NAIRA } from "@/lib/billing";
 import { ProfileForms } from "./ProfileForms";
+import { AvatarUploader } from "./AvatarUploader";
 
 export const metadata = { title: "Account" };
 
@@ -37,7 +38,13 @@ export default async function AccountPage() {
     <div className="mx-auto max-w-2xl space-y-6">
       {/* ------------------------------------------------------- profile --- */}
       <header className="card animate-rise flex flex-wrap items-center gap-4 p-6">
-        <Avatar name={user.name} hue={user.avatar_hue} size={64} />
+        <Avatar
+          name={user.name}
+          hue={user.avatar_hue}
+          size={64}
+          userId={user.id}
+          avatarVersion={user.avatar_version}
+        />
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-2xl font-extrabold tracking-tight">{user.name}</h1>
           <p className="truncate text-sm text-mist">@{user.username}</p>
@@ -173,6 +180,15 @@ export default async function AccountPage() {
           </form>
         )}
       </section>
+
+      {/* ------------------------------------------------- profile picture --- */}
+      <AvatarUploader
+        userId={user.id}
+        name={user.name}
+        avatarHue={user.avatar_hue}
+        avatarVersion={user.avatar_version}
+        hasPhoto={user.avatar_version > 0}
+      />
 
       {/* --------------------------------------------------- profile forms --- */}
       <ProfileForms

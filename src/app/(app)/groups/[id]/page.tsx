@@ -115,7 +115,7 @@ export default async function GroupPage({ params }: Props) {
             <ul className="space-y-2.5">
               {members.map((entry) => (
                 <li key={entry.id} className="flex items-center gap-2.5">
-                  <Avatar name={entry.name} hue={entry.avatar_hue} size={32} />
+                  <Avatar name={entry.name} hue={entry.avatar_hue} userId={entry.id} avatarVersion={entry.avatar_version} size={32} />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">
                       {entry.name}

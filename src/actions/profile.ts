@@ -4,6 +4,12 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser, hashPassword, verifyPassword } from "@/lib/auth";
 import { db } from "@/lib/db";
+import {
+  AVATAR_ALLOWED_MIME,
+  AVATAR_MAX_BYTES,
+  clearAvatar,
+  setAvatar,
+} from "@/lib/avatars";
 
 export type ProfileState = { error?: string; success?: string };
 
@@ -68,4 +74,40 @@ export async function changePasswordAction(
 
   revalidatePath("/account");
   return { success: "Password changed. Other devices stay signed out." };
+}
+
+// -------------------------------------------------------------- profile photo
+
+/** A user's own profile picture — capped at 1 MB and to real image types. */
+export async function uploadAvatarAction(
+  _prev: ProfileState,
+  formData: FormData,
+): Promise<ProfileState> {
+  const user = await requireUser();
+  const file = formData.get("avatar");
+
+  if (!(file instanceof File) || file.size === 0) {
+    return { error: "Choose a photo to upload." };
+  }
+  if (!AVATAR_ALLOWED_MIME.has(file.type)) {
+    return { error: "Use a JPG, PNG or WEBP image." };
+  }
+  if (file.size > AVATAR_MAX_BYTES) {
+    return { error: "That photo is over 1 MB. Please pick a smaller one." };
+  }
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  setAvatar(user.id, buffer, file.type);
+
+  revalidatePath("/", "layout");
+  revalidatePath("/account");
+  return { success: "Profile picture updated." };
+}
+
+export async function removeAvatarAction(): Promise<ProfileState> {
+  const user = await requireUser();
+  clearAvatar(user.id);
+  revalidatePath("/", "layout");
+  revalidatePath("/account");
+  return { success: "Profile picture removed." };
 }

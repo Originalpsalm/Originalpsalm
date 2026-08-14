@@ -133,7 +133,7 @@ export function SpeedRunner({
                 <span
                   className={cn(
                     "grid size-8 shrink-0 place-items-center rounded-lg text-sm font-bold",
-                    chosen ? "brand-gradient text-ink-950" : "bg-ink-700 text-mist",
+                    chosen ? "brand-gradient text-brandink" : "bg-ink-700 text-mist",
                   )}
                 >
                   {option.letter}

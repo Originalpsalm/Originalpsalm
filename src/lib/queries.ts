@@ -284,7 +284,7 @@ export function searchStudents(query: string, viewerId: number, limit = 20): Pub
   const like = `%${query.trim()}%`;
   return db
     .prepare(
-      `SELECT id, name, username, school, class_level, avatar_hue
+      `SELECT id, name, username, school, class_level, avatar_hue, avatar_version
          FROM users
         WHERE id != ?
           AND (name LIKE ? OR username LIKE ? OR school LIKE ?)
@@ -297,7 +297,7 @@ export function searchStudents(query: string, viewerId: number, limit = 20): Pub
 export function suggestedStudents(viewerId: number, limit = 12): PublicUser[] {
   return db
     .prepare(
-      `SELECT u.id, u.name, u.username, u.school, u.class_level, u.avatar_hue
+      `SELECT u.id, u.name, u.username, u.school, u.class_level, u.avatar_hue, u.avatar_version
          FROM users u
         WHERE u.id != ?
           AND NOT EXISTS (
@@ -317,7 +317,7 @@ export function friendsOf(userId: number): FriendRow[] {
   return db
     .prepare(
       `SELECT f.id AS friendship_id, u.id, u.name, u.username, u.school,
-              u.class_level, u.avatar_hue
+              u.class_level, u.avatar_hue, u.avatar_version
          FROM friendships f
          JOIN users u ON u.id = CASE WHEN f.requester_id = ? THEN f.addressee_id
                                      ELSE f.requester_id END
@@ -333,7 +333,7 @@ export function incomingRequests(userId: number): FriendRow[] {
   return db
     .prepare(
       `SELECT f.id AS friendship_id, u.id, u.name, u.username, u.school,
-              u.class_level, u.avatar_hue
+              u.class_level, u.avatar_hue, u.avatar_version
          FROM friendships f
          JOIN users u ON u.id = f.requester_id
         WHERE f.addressee_id = ? AND f.status = 'pending'
@@ -346,7 +346,7 @@ export function outgoingRequests(userId: number): FriendRow[] {
   return db
     .prepare(
       `SELECT f.id AS friendship_id, u.id, u.name, u.username, u.school,
-              u.class_level, u.avatar_hue
+              u.class_level, u.avatar_hue, u.avatar_version
          FROM friendships f
          JOIN users u ON u.id = f.addressee_id
         WHERE f.requester_id = ? AND f.status = 'pending'
@@ -409,7 +409,7 @@ export function isMember(groupId: number, userId: number): boolean {
 export function groupMembers(groupId: number): (PublicUser & { role: string })[] {
   return db
     .prepare(
-      `SELECT u.id, u.name, u.username, u.school, u.class_level, u.avatar_hue, m.role
+      `SELECT u.id, u.name, u.username, u.school, u.class_level, u.avatar_hue, u.avatar_version, m.role
          FROM group_members m
          JOIN users u ON u.id = m.user_id
         WHERE m.group_id = ?
@@ -422,7 +422,7 @@ export function groupMessages(groupId: number, limit = 100): Message[] {
   const rows = db
     .prepare(
       `SELECT m.*, u.name AS author_name, u.username AS author_username,
-              u.avatar_hue
+              u.avatar_hue, u.avatar_version
          FROM messages m
          JOIN users u ON u.id = m.user_id
         WHERE m.group_id = ?

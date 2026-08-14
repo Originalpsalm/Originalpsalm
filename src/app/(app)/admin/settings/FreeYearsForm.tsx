@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Loader2 } from "lucide-react";
-import { saveSettingsAction, type SettingsState } from "@/actions/settings";
+import { saveFreeYearsAction, type SettingsState } from "@/actions/settings";
 import { Alert, Button, Field, inputClass } from "@/components/ui";
 
 function Save() {
@@ -16,8 +16,8 @@ function Save() {
   );
 }
 
-export function SettingsForm({ current }: { current: number }) {
-  const [state, action] = useActionState<SettingsState, FormData>(saveSettingsAction, {});
+export function FreeYearsForm({ current }: { current: number }) {
+  const [state, action] = useActionState<SettingsState, FormData>(saveFreeYearsAction, {});
   const [value, setValue] = useState(String(current));
 
   return (
