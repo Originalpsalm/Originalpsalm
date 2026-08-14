@@ -49,13 +49,15 @@ export async function requestReset(rawEmail: string, appUrl: string): Promise<vo
 
   const link = `${appUrl.replace(/\/$/, "")}/reset-password?token=${token}`;
 
-  if (hasEmailService()) {
-    await sendResetEmail({ to: user.email, name: user.name, link });
+  // Only mark it delivered when the email genuinely went out. If there is no
+  // email service, or the send fails (bad key, unverified domain, recipient
+  // not allowed on the shared sender), the row stays in the admin queue so an
+  // admin can always hand-deliver — a reset is never silently lost.
+  const sent = hasEmailService() ? await sendResetEmail({ to: user.email, name: user.name, link }) : false;
+  if (sent) {
     db.prepare(`UPDATE password_resets SET delivered = 1 WHERE token = ?`).run(token);
   } else {
-    // Two safety nets: logs so a small operator can copy the link from the
-    // server console, and a row the admin panel can surface as a queue.
-    console.log(`[password-reset] no email service; deliver to ${user.email}: ${link}`);
+    console.log(`[password-reset] not emailed; deliver to ${user.email}: ${link}`);
   }
 }
 
@@ -126,8 +128,8 @@ export function pendingResets(): ResetRow[] {
 
 // ---------------------------------------------------------- email delivery
 
-async function sendResetEmail(input: { to: string; name: string; link: string }): Promise<void> {
-  await sendEmail({
+async function sendResetEmail(input: { to: string; name: string; link: string }): Promise<boolean> {
+  const result = await sendEmail({
     to: input.to,
     subject: "Reset your GURU password",
     html: `<p>Hi ${escapeHtml(input.name)},</p>
@@ -135,4 +137,5 @@ async function sendResetEmail(input: { to: string; name: string; link: string })
 <p><a href="${input.link}">${input.link}</a></p>
 <p>If you did not ask for this, ignore this message — your password stays as it is.</p>`,
   });
+  return result.ok;
 }
