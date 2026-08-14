@@ -14,6 +14,8 @@ import { Avatar, Badge, cn } from "./ui";
 import { Logo } from "./Logo";
 import { ThemeToggle } from "./ThemeToggle";
 
+// The desktop sidebar keeps Premium in view. Admin is appended below when the
+// user is staff.
 const NAV = [
   { href: "/dashboard", label: "Home", icon: Home },
   { href: "/practice", label: "Practice", icon: BookOpenCheck },
@@ -21,6 +23,18 @@ const NAV = [
   { href: "/friends", label: "Friends", icon: UserRound },
   { href: "/premium", label: "Premium", icon: Crown },
 ];
+
+// The mobile tab bar: five tabs, ending in "You" (the account). Premium is not
+// here — it stays one tap away via the "Go Premium" pill in the top bar — so
+// the profile has a permanent, obvious home. `icon: null` marks the tab that
+// renders the user's avatar instead of a lucide icon.
+const MOBILE_TABS = [
+  { href: "/dashboard", label: "Home", icon: Home },
+  { href: "/practice", label: "Practice", icon: BookOpenCheck },
+  { href: "/groups", label: "Groups", icon: Users },
+  { href: "/friends", label: "Friends", icon: UserRound },
+  { href: "/account", label: "You", icon: null },
+] as const;
 
 export type ShellUser = {
   id: number;
@@ -127,9 +141,6 @@ export function AppShell({
               </Link>
             )}
             <ThemeToggle className="size-8" />
-            <Link href="/account" className="focus-ring rounded-full">
-              <Avatar name={user.name} hue={user.avatar_hue} userId={user.id} avatarVersion={user.avatar_version} size={34} />
-            </Link>
           </div>
         </header>
 
@@ -142,28 +153,49 @@ export function AppShell({
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <ul className="mx-auto flex max-w-lg">
-          {NAV.map(({ href, label, icon: Icon }) => (
-            <li key={href} className="flex-1">
-              <Link
-                href={href}
-                aria-current={isActive(href) ? "page" : undefined}
-                className={cn(
-                  "focus-ring flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition",
-                  isActive(href) ? "text-leaf-400" : "text-mist",
-                )}
-              >
-                <span
+          {MOBILE_TABS.map(({ href, label, icon: Icon }) => {
+            const active = isActive(href);
+            return (
+              <li key={href} className="flex-1">
+                <Link
+                  href={href}
+                  aria-current={active ? "page" : undefined}
                   className={cn(
-                    "grid size-8 place-items-center rounded-lg transition",
-                    isActive(href) && "bg-leaf-500/12",
+                    "focus-ring flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition",
+                    active ? "text-leaf-400" : "text-mist",
                   )}
                 >
-                  <Icon size={19} strokeWidth={2.1} />
-                </span>
-                {label}
-              </Link>
-            </li>
-          ))}
+                  {Icon ? (
+                    <span
+                      className={cn(
+                        "grid size-8 place-items-center rounded-lg transition",
+                        active && "bg-leaf-500/12",
+                      )}
+                    >
+                      <Icon size={19} strokeWidth={2.1} />
+                    </span>
+                  ) : (
+                    // The "You" tab shows the user's own photo (or initials).
+                    <span
+                      className={cn(
+                        "grid size-8 place-items-center rounded-full transition",
+                        active && "ring-2 ring-leaf-400 ring-offset-2 ring-offset-ink-950",
+                      )}
+                    >
+                      <Avatar
+                        name={user.name}
+                        hue={user.avatar_hue}
+                        userId={user.id}
+                        avatarVersion={user.avatar_version}
+                        size={26}
+                      />
+                    </span>
+                  )}
+                  {label}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </nav>
     </div>
