@@ -1,9 +1,11 @@
-import { Check, Copy, KeyRound } from "lucide-react";
+import { Check, KeyRound } from "lucide-react";
 import { headers } from "next/headers";
 import { hasEmailService, pendingResets } from "@/lib/passwords";
+import { emailFrom } from "@/lib/email";
 import { markResetDeliveredAction } from "@/actions/password";
 import { Alert, Badge, Button } from "@/components/ui";
 import { CopyLink } from "./CopyLink";
+import { EmailTester } from "./EmailTester";
 
 export const metadata = { title: "Password resets" };
 
@@ -18,6 +20,8 @@ export default async function AdminResetsPage() {
 
   return (
     <div className="space-y-4">
+      {emailReady && <EmailTester from={emailFrom()} />}
+
       {emailReady ? (
         <Alert tone="success">
           Email delivery is on — reset links are sent to students automatically. This page will
