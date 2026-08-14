@@ -10,6 +10,7 @@ import {
   clearAvatar,
   setAvatar,
 } from "@/lib/avatars";
+import { validatePassword } from "@/lib/password-policy";
 
 export type ProfileState = { error?: string; success?: string };
 
@@ -66,6 +67,13 @@ export async function changePasswordAction(
   if (!verifyPassword(parsed.data.current, user.password_hash)) {
     return { error: "Your current password is not correct." };
   }
+
+  const strong = await validatePassword(parsed.data.next, [
+    user.name,
+    user.username,
+    user.email,
+  ]);
+  if (!strong.ok) return { error: strong.error };
 
   db.prepare(`UPDATE users SET password_hash = ? WHERE id = ?`).run(
     hashPassword(parsed.data.next),

@@ -3,11 +3,12 @@
 import { z } from "zod";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { completeReset, hasEmailService, requestReset } from "@/lib/passwords";
+import { completeReset, hasEmailService, requestReset, verifyToken } from "@/lib/passwords";
 import { requireAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { recordAction } from "@/lib/admin";
 import { LIMITS, allow, callerIp } from "@/lib/rate-limit";
+import { validatePassword } from "@/lib/password-policy";
 
 export type ForgotState = { error?: string; success?: boolean };
 
@@ -53,6 +54,20 @@ export async function resetPasswordAction(
 ): Promise<ResetState> {
   const parsed = resetSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: parsed.error.issues[0]?.message };
+
+  // Throttle by IP so the reset endpoint can't be hammered to guess tokens or
+  // to burn through the breach-check API.
+  if (!allow(`reset:${await callerIp()}`, LIMITS.reset.max, LIMITS.reset.windowMs)) {
+    return { error: "Too many attempts. Wait a few minutes and try again." };
+  }
+
+  // Enforce the same strength/breach rules as signup. The token identifies the
+  // account, so we can also reject a password that echoes the user's own name.
+  const owner = verifyToken(parsed.data.token);
+  if (!owner) return { error: "That reset link is no longer valid. Request a new one." };
+
+  const strong = await validatePassword(parsed.data.password, [owner.name, owner.email]);
+  if (!strong.ok) return { error: strong.error };
 
   const ok = completeReset(parsed.data.token, parsed.data.password);
   if (!ok) return { error: "That reset link is no longer valid. Request a new one." };

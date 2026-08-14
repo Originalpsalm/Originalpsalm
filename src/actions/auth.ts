@@ -15,6 +15,7 @@ import {
 } from "@/lib/auth";
 import type { User } from "@/lib/types";
 import { LIMITS, allow, callerIp } from "@/lib/rate-limit";
+import { validatePassword } from "@/lib/password-policy";
 import crypto from "node:crypto";
 
 // A throwaway hash used to equalise login timing when no account matches —
@@ -55,6 +56,9 @@ export async function signupAction(_prev: AuthState, formData: FormData): Promis
   if (!allow(`signup:${await callerIp()}`, LIMITS.signup.max, LIMITS.signup.windowMs)) {
     return { error: "Too many accounts created from this connection. Try again later." };
   }
+
+  const strong = await validatePassword(input.password, [input.name, input.username, input.email]);
+  if (!strong.ok) return { error: strong.error };
 
   const clash = db
     .prepare(`SELECT email, username FROM users WHERE email = ? OR username = ?`)

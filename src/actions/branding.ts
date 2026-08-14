@@ -7,7 +7,9 @@ import { clearLogo, setLogo } from "@/lib/settings";
 import { recordAction } from "@/lib/admin";
 
 const MAX_BYTES = 1_000_000; // 1 MB — a logo has no business being bigger
-const ALLOWED = new Set(["image/png", "image/jpeg", "image/webp", "image/svg+xml"]);
+// SVG is deliberately excluded: an SVG can carry script, and though only the
+// owner can upload one, a raster-only allowlist removes the risk entirely.
+const ALLOWED = new Set(["image/png", "image/jpeg", "image/webp"]);
 
 export type BrandingState = { error?: string; success?: string };
 

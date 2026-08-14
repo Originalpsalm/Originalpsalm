@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { initializePayment, paymentByReference } from "@/lib/billing";
+import { LIMITS, allow } from "@/lib/rate-limit";
 
 export type CheckoutState = { error?: string };
 
@@ -13,6 +14,12 @@ export async function startCheckoutAction(
 ): Promise<CheckoutState> {
   const user = await requireUser();
   const planId = String(formData.get("planId") ?? "1");
+
+  // Per-user throttle so a script can't spam Paystack init and flood the
+  // payments table with pending rows.
+  if (!allow(`payment:${user.id}`, LIMITS.payment.max, LIMITS.payment.windowMs)) {
+    return { error: "Too many checkout attempts. Please wait a little and try again." };
+  }
 
   const result = await initializePayment({
     userId: user.id,

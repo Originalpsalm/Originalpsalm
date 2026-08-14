@@ -38,5 +38,12 @@
     "@types/react-dom": "^19.2.4",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3"
+  },
+  "comments": {
+    "overrides": "Pin transitive deps of Next to patched versions, clearing the postcss (sourceMappingURL path-traversal) and sharp/libvips advisories without a breaking Next major bump. Revisit when upgrading Next."
+  },
+  "overrides": {
+    "postcss": "^8.5.26",
+    "sharp": "^0.35.3"
   }
 }

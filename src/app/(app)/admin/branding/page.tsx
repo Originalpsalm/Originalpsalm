@@ -59,7 +59,7 @@ export default async function BrandingPage({ searchParams }: Props) {
 
       <p className="text-xs leading-relaxed text-mist/70">
         The logo is stored with your data on the server disk, so it stays put across updates. Max
-        file size 1 MB. PNG, JPG, WEBP or SVG.
+        file size 1 MB. PNG, JPG or WEBP.
       </p>
     </div>
   );
