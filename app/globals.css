@@ -3,96 +3,119 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * Design tokens — Psalm Creations Business Suite
+ * Design tokens — Green-X Farm Investor Platform
  *
- * Semantic, role-based tokens per the UI/UX Design System spec.
- * Components must reference these tokens only — never literal colors —
- * so light and dark themes are defined here and nowhere else.
+ * Semantic, role-based tokens. Components reference these tokens only —
+ * never literal colors — so light and dark themes are defined here and
+ * nowhere else.
  *
- * Status colors are fg/bg pairs: `*-fg` values meet WCAG AA (4.5:1) as
- * text on `background`/`surface`; `*-soft` values are fills for badges.
+ * Palette: forest green (production), tomato red (the cash engine),
+ * harvest gold (highlights) on a warm paper canvas.
  */
 
 :root {
-  /* Surfaces */
-  --background: #f8fafc; /* app canvas — neutral white */
-  --surface: #ffffff; /* cards — pure white */
-  --surface-raised: #ffffff; /* popovers, dialogs */
-  --surface-sunken: #f1f5f9; /* wells, table headers */
+  /* Surfaces — warm paper, not clinical white */
+  --background: #fbfaf7;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-sunken: #f3f2ec;
+
+  /* Inverted surfaces — dark sections inside a light page */
+  --surface-invert: #0c1712;
+  --surface-invert-raised: #142219;
 
   /* Text */
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-  --text-inverted: #f8fafc;
+  --text-primary: #10201a;
+  --text-secondary: #4c5c54;
+  --text-muted: #7b8a82;
+  --text-inverted: #f4f7f4;
 
   /* Borders */
-  --border-subtle: #e2e8f0;
-  --border-strong: #cbd5e1;
+  --border-subtle: #e7e4da;
+  --border-strong: #d3cfc2;
 
-  /* Brand — deep indigo primary, royal blue accent */
-  --primary: #4f46e5;
-  --primary-hover: #4338ca;
+  /* Brand */
+  --primary: #1a6b45;
+  --primary-hover: #145536;
   --primary-fg: #ffffff;
-  --primary-soft: #eef2ff;
-  --accent: #2563eb;
-  --accent-fg: #ffffff;
-  --accent-soft: #eff6ff;
+  --primary-soft: #e9f3ed;
+  --primary-border: #b9dbc8;
 
-  /* Status — fg passes AA on light surfaces; soft is the badge fill */
-  --success-fg: #047857;
-  --success-soft: #ecfdf5;
-  --success-border: #a7f3d0;
-  --warning-fg: #92400e;
-  --warning-soft: #fffbeb;
-  --warning-border: #fde68a;
-  --danger-fg: #be123c;
-  --danger-soft: #fff1f2;
-  --danger-border: #fecdd3;
+  --accent: #cf4630;
+  --accent-hover: #b23a26;
+  --accent-fg: #ffffff;
+  --accent-soft: #fcefeb;
+  --accent-border: #f2c8bd;
+
+  --harvest: #b07d1f;
+  --harvest-soft: #fbf3e0;
+  --harvest-border: #ecd7a4;
+
+  /* Status */
+  --success-fg: #10693f;
+  --success-soft: #e9f5ee;
+  --success-border: #a9d8bd;
+  --warning-fg: #8a5a10;
+  --warning-soft: #fdf4e3;
+  --warning-border: #eed6a3;
+  --danger-fg: #b02a37;
+  --danger-soft: #fdeef0;
+  --danger-border: #f2c2c8;
+  --neutral-fg: #5c6a62;
+  --neutral-soft: #f0efe9;
+  --neutral-border: #dedbd0;
 
   /* Focus */
-  --ring: #4f46e5;
+  --ring: #1a6b45;
 }
 
 .dark {
-  /* Surfaces — slate based */
-  --background: #020617;
-  --surface: #0f172a;
-  --surface-raised: #1e293b;
-  --surface-sunken: #0b1120;
+  --background: #08120d;
+  --surface: #0e1c15;
+  --surface-raised: #14261c;
+  --surface-sunken: #0b1710;
 
-  /* Text */
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --text-inverted: #0f172a;
+  --surface-invert: #0b1710;
+  --surface-invert-raised: #14261c;
 
-  /* Borders */
-  --border-subtle: #1e293b;
-  --border-strong: #334155;
+  --text-primary: #edf3ef;
+  --text-secondary: #9db0a6;
+  --text-muted: #718479;
+  --text-inverted: #0c1712;
 
-  /* Brand */
-  --primary: #6366f1;
-  --primary-hover: #818cf8;
-  --primary-fg: #ffffff;
-  --primary-soft: #1e1b4b;
-  --accent: #3b82f6;
-  --accent-fg: #ffffff;
-  --accent-soft: #172554;
+  --border-subtle: #1c3126;
+  --border-strong: #2c4736;
 
-  /* Status */
-  --success-fg: #34d399;
-  --success-soft: #022c22;
-  --success-border: #065f46;
-  --warning-fg: #fbbf24;
-  --warning-soft: #451a03;
-  --warning-border: #92400e;
-  --danger-fg: #fb7185;
-  --danger-soft: #4c0519;
-  --danger-border: #9f1239;
+  --primary: #3fa872;
+  --primary-hover: #58bd87;
+  --primary-fg: #05130c;
+  --primary-soft: #10281c;
+  --primary-border: #1f4a33;
 
-  /* Focus */
-  --ring: #818cf8;
+  --accent: #ef7259;
+  --accent-hover: #f5896f;
+  --accent-fg: #200803;
+  --accent-soft: #2a1310;
+  --accent-border: #4d221a;
+
+  --harvest: #e0b45c;
+  --harvest-soft: #2a2110;
+  --harvest-border: #4d3d1b;
+
+  --success-fg: #4cc286;
+  --success-soft: #0f2a1c;
+  --success-border: #1f4a33;
+  --warning-fg: #e0b45c;
+  --warning-soft: #2a2110;
+  --warning-border: #4d3d1b;
+  --danger-fg: #f08a95;
+  --danger-soft: #2c1216;
+  --danger-border: #55232a;
+  --neutral-fg: #9db0a6;
+  --neutral-soft: #16261d;
+  --neutral-border: #243a2c;
+
+  --ring: #3fa872;
 }
 
 @theme inline {
@@ -100,6 +123,8 @@
   --color-surface: var(--surface);
   --color-surface-raised: var(--surface-raised);
   --color-surface-sunken: var(--surface-sunken);
+  --color-surface-invert: var(--surface-invert);
+  --color-surface-invert-raised: var(--surface-invert-raised);
 
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
@@ -113,9 +138,17 @@
   --color-primary-hover: var(--primary-hover);
   --color-primary-fg: var(--primary-fg);
   --color-primary-soft: var(--primary-soft);
+  --color-primary-border: var(--primary-border);
+
   --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
   --color-accent-fg: var(--accent-fg);
   --color-accent-soft: var(--accent-soft);
+  --color-accent-border: var(--accent-border);
+
+  --color-harvest: var(--harvest);
+  --color-harvest-soft: var(--harvest-soft);
+  --color-harvest-border: var(--harvest-border);
 
   --color-success-fg: var(--success-fg);
   --color-success-soft: var(--success-soft);
@@ -126,14 +159,99 @@
   --color-danger-fg: var(--danger-fg);
   --color-danger-soft: var(--danger-soft);
   --color-danger-border: var(--danger-border);
+  --color-neutral-fg: var(--neutral-fg);
+  --color-neutral-soft: var(--neutral-soft);
+  --color-neutral-border: var(--neutral-border);
 
   --color-ring: var(--ring);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), var(--font-inter), ui-sans-serif,
+    system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Sticky header clearance for in-page anchors. */
+  scroll-padding-top: 5.5rem;
 }
 
 body {
   background: var(--background);
   color: var(--text-primary);
   font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "cv11", "ss01";
+  text-rendering: optimizeLegibility;
+}
+
+/* Display face: tighter tracking at large sizes reads as modern, not shouty. */
+.font-display {
+  font-family: var(--font-display), var(--font-inter), ui-sans-serif, system-ui,
+    sans-serif;
+  letter-spacing: -0.022em;
+}
+
+::selection {
+  background: var(--primary);
+  color: var(--primary-fg);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/*
+ * Scroll-reveal.
+ *
+ * Driven entirely by a CSS scroll-driven animation — no JavaScript, and no
+ * state in which content can be left permanently invisible. Where
+ * `animation-timeline` is unsupported (or motion is reduced), the rule never
+ * applies and content simply renders as normal.
+ */
+@keyframes gx-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .gx-reveal {
+      animation: gx-rise linear both;
+      animation-timeline: view();
+      /* Stagger comes from --gx-offset, set per item by the Reveal component. */
+      animation-range: entry calc(0% + var(--gx-offset, 0%)) entry
+        calc(62% + var(--gx-offset, 0%));
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Subtle field-row texture used behind hero and CTA bands. */
+.gx-grid-bg {
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in srgb, var(--primary) 8%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--primary) 8%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 30%, transparent 78%);
 }
