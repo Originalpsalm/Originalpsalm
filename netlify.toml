@@ -1,0 +1,24 @@
+# Netlify deployment configuration.
+#
+# Every route is static, so the site is exported to plain HTML and served with
+# no Node runtime — no dependency on a framework adapter keeping pace with the
+# Next.js version. See `next.config.ts` for the STATIC_EXPORT switch.
+#
+# When a server feature lands (an API route for the enquiry form, real portal
+# authentication), change `command` back to `npm run build`, set
+# `publish = ".next"`, and Netlify's Next.js runtime takes over.
+
+[build]
+  command = "npm run build:static"
+  publish = "out"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# The investor room is a preview, not a real portal — keep it out of search
+# results until it is backed by genuine authentication.
+[[headers]]
+  for = "/portal"
+  [headers.values]
+    X-Robots-Tag = "noindex"

@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the Psalm Creations Business Suite are recorded here.
+All notable changes are recorded here.
 
 Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](https://semver.org)
 
@@ -8,6 +8,33 @@ Every completed feature, release, breaking change, migration, and deployment
 must be recorded here — and only after it has actually shipped.
 
 ## [Unreleased]
+
+### Added
+
+- Green-X Farm investor platform — ten static routes covering opportunities,
+  the project pipeline, the development roadmap, track record, how to invest,
+  about, contact and an investor room preview
+- Content layer in `content/` so all copy and deal data is editable without
+  touching components
+- `flags.showSampleDeals` — a single switch that hides every placeholder
+  closed round site-wide, including its detail route
+- Scroll reveal via CSS scroll-driven animations, with no state in which
+  content can be left invisible
+- Class-based dark mode with a pre-paint inline script and a header toggle
+
+- `npm run build:static` — opt-in static export to `out/`, plus `netlify.toml`
+  so the site can be hosted anywhere without a framework adapter
+
+### Changed
+
+- Design tokens retargeted from the indigo ERP palette to the Green-X palette
+  (forest green, tomato accent, harvest gold on a warm paper canvas)
+- Root layout now carries the site header, footer and the Inter + Plus Jakarta
+  Sans pairing
+- Fonts are self-hosted from `app/fonts/` instead of fetched by
+  `next/font/google` at build time — the Google fetch failed a CI build, and
+  self-hosting removes the network dependency and the third-party request on
+  page load
 
 ## [0.0.1] — 2026-08-05
 
