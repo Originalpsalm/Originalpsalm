@@ -10,10 +10,24 @@ Content is derived from the *Green-X Farm 2.0 Revised Master Plan* and the
 ## Stack
 
 Next.js 16 · React 19 · TypeScript (strict) · TailwindCSS v4 ·
-Inter + Plus Jakarta Sans
+Inter + Plus Jakarta Sans (self-hosted)
 
 Fully static — every route prerenders. There is no database, no auth and no
 server-side state.
+
+Fonts are committed to `app/fonts/` rather than fetched from Google at build
+time, so a build never depends on reaching a third party and readers are not
+sent to another host on page load. Both faces are SIL Open Font License 1.1.
+
+## Deploying
+
+`npm run build:static` exports the whole site to plain HTML in `out/`, which
+can be served by any static host — drag it onto Netlify Drop, or point a
+provider at the repo (`netlify.toml` is already configured).
+
+The default `npm run build` is untouched. When a server feature lands — an API
+route for the enquiry form, real portal authentication — switch the host back
+to `npm run build` and drop the static export.
 
 ## Pages
 

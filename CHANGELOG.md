@@ -22,12 +22,19 @@ must be recorded here — and only after it has actually shipped.
   content can be left invisible
 - Class-based dark mode with a pre-paint inline script and a header toggle
 
+- `npm run build:static` — opt-in static export to `out/`, plus `netlify.toml`
+  so the site can be hosted anywhere without a framework adapter
+
 ### Changed
 
 - Design tokens retargeted from the indigo ERP palette to the Green-X palette
   (forest green, tomato accent, harvest gold on a warm paper canvas)
 - Root layout now carries the site header, footer and the Inter + Plus Jakarta
   Sans pairing
+- Fonts are self-hosted from `app/fonts/` instead of fetched by
+  `next/font/google` at build time — the Google fetch failed a CI build, and
+  self-hosting removes the network dependency and the third-party request on
+  page load
 
 ## [0.0.1] — 2026-08-05
 

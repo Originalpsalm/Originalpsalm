@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import localFont from "next/font/local";
 
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -7,17 +7,32 @@ import { site } from "@/content/site";
 
 import "./globals.css";
 
-const inter = Inter({
+/*
+ * Fonts are self-hosted rather than fetched from Google at build time.
+ *
+ * next/font/google downloads the files during every build, which makes the
+ * build fail whenever the network to Google is unavailable — it has already
+ * broken CI once. These are the same latin-subset variable files, committed to
+ * the repo, so the build has no network dependency and readers are not sent to
+ * a third party on page load. Both faces are SIL Open Font License 1.1; see
+ * app/fonts/OFL.txt.
+ */
+const inter = localFont({
+  src: "./fonts/Inter-Variable.woff2",
   variable: "--font-inter",
-  subsets: ["latin"],
+  weight: "100 900",
+  style: "normal",
   display: "swap",
+  fallback: ["ui-sans-serif", "system-ui", "sans-serif"],
 });
 
-const display = Plus_Jakarta_Sans({
+const display = localFont({
+  src: "./fonts/PlusJakartaSans-Variable.woff2",
   variable: "--font-display",
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: "200 800",
+  style: "normal",
   display: "swap",
+  fallback: ["ui-sans-serif", "system-ui", "sans-serif"],
 });
 
 export const metadata: Metadata = {
