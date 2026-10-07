@@ -189,12 +189,14 @@ subscription.
 | Auth | Custom sessions — bcrypt + signed JWT in an httpOnly cookie |
 | Payments | Paystack, with a mock provider for local use |
 | Icons | lucide-react |
+| Fonts | Plus Jakarta Sans app-wide; Bricolage Grotesque and Caveat on the website — all self-hosted from `public/fonts` |
 
 ### Layout
 
 ```
 src/
   app/
+    page.tsx           the public website shown before sign-in
     (auth)/            login, signup
     (app)/             everything behind a session
       dashboard/       home — streak, accuracy, groups, weak subjects
@@ -207,6 +209,8 @@ src/
     api/groups/[id]/messages/   chat poll + post
   actions/             server actions (auth, practice, groups, friends, billing)
   components/          shared UI, app shell, logo
+    landing/           the public website (page.tsx renders it): sections,
+                       headline slider, try-a-question, scroll reveal, art
   data/papers/         the question bank (waec.mjs, jamb.mjs, neco.mjs)
   lib/                 db, schema, auth, queries, billing, types
 scripts/seed.mjs       seeding

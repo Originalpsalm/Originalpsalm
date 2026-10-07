@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { cn } from "./ui";
 
 /**
@@ -10,6 +10,20 @@ import { cn } from "./ui";
  */
 export function LogoMark({ size = 36, className }: { size?: number; className?: string }) {
   const [customFailed, setCustomFailed] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+  // Each mark needs its own gradient id. With a shared id, a copy of the logo
+  // inside a hidden container (e.g. the desktop sidebar on a phone) owns the
+  // gradient, and Chrome paints every other copy with no fill at all.
+  const gradientId = `guru-mark-${useId().replace(/:/g, "")}`;
+
+  // The <img> is in the server-rendered HTML, so when no logo exists the 404
+  // usually lands BEFORE React hydrates and attaches onError — the event is
+  // lost and a broken-image icon stays on screen. Checking once on mount
+  // catches that case: a finished load with no pixels means it failed.
+  useEffect(() => {
+    const img = imgRef.current;
+    if (img && img.complete && img.naturalWidth === 0) setCustomFailed(true);
+  }, []);
 
   // A logo uploaded in the admin panel is served from /api/brand/logo. We try
   // it first and quietly fall back to the built-in mark if none exists (the
@@ -18,6 +32,7 @@ export function LogoMark({ size = 36, className }: { size?: number; className?: 
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
+        ref={imgRef}
         src="/api/brand/logo"
         alt="GURU"
         width={size}
@@ -39,13 +54,13 @@ export function LogoMark({ size = 36, className }: { size?: number; className?: 
       aria-hidden="true"
     >
       <defs>
-        <linearGradient id="guru-mark" x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+        <linearGradient id={gradientId} x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse">
           <stop stopColor="#3ddc97" />
           <stop offset="0.55" stopColor="#17c471" />
           <stop offset="1" stopColor="#0b8f57" />
         </linearGradient>
       </defs>
-      <rect width="48" height="48" rx="13" fill="url(#guru-mark)" />
+      <rect width="48" height="48" rx="13" fill={`url(#${gradientId})`} />
       {/* mortar board */}
       <path d="M24 12 8 19l16 7 16-7-16-7Z" fill="#04170f" />
       {/* the tassel + the open side of the G */}
