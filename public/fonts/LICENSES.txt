@@ -1,0 +1,20 @@
+Fonts served from this folder, all under the SIL Open Font License 1.1
+(https://openfontlicense.org). Files are the Google Fonts static subsets as
+packaged by Fontsource (https://fontsource.org).
+
+Bricolage Grotesque
+  Copyright 2022 The Bricolage Grotesque Project Authors
+  https://github.com/ateliertriay/bricolage
+  bricolage-grotesque-latin.woff2, bricolage-grotesque-latin-ext.woff2
+  (variable: opsz 12-96, wght 200-800)
+
+Plus Jakarta Sans
+  Copyright 2020 The Plus Jakarta Sans Project Authors
+  https://github.com/tokotype/PlusJakartaSans
+  plus-jakarta-sans-latin.woff2, plus-jakarta-sans-latin-ext.woff2
+  (variable: wght 200-800)
+
+Caveat
+  Copyright 2014 The Caveat Project Authors
+  https://github.com/googlefonts/caveat
+  caveat-latin.woff2 (variable: wght 400-700)
